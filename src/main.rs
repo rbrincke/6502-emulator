@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate phf;
 
-mod cpu;
+mod processor;
 
 fn main() {
     println!("Hello, world!");

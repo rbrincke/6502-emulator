@@ -1,5 +1,5 @@
 #[derive(Clone, Copy, Debug)]
-enum Flag {
+pub enum Flag {
     Carry = 0,
     Zero,
     Interrupt,
@@ -10,7 +10,7 @@ enum Flag {
 }
 
 #[derive(Debug)]
-struct Registers {
+pub struct Registers {
     pub program_counter: u16,
     pub stack_pointer: u8,
     pub accumulator: u8,
@@ -20,7 +20,7 @@ struct Registers {
 }
 
 impl Registers {
-    fn new() -> Registers {
+    pub fn new() -> Registers {
         Registers {
             program_counter: 0,
             stack_pointer: 0,
@@ -31,23 +31,23 @@ impl Registers {
         }
     }
 
-    fn set(&mut self, flag: Flag) {
+    pub fn set(&mut self, flag: Flag) {
         self.status |= 0x1 << (flag as u8);
     }
 
-    fn get(&self, flag: Flag) -> bool {
+    pub fn get(&self, flag: Flag) -> bool {
         let v = self.status >> (flag as u8);
         (v & 0x1) == 1
     }
 
-    fn clear(&mut self, flag: Flag) {
+    pub fn clear(&mut self, flag: Flag) {
         self.status &= !(0x1 << (flag as u8));
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cpu::registers::{Registers, Flag};
+    use crate::processor::registers::{Registers, Flag};
 
     #[test]
     fn test_set_get_clear() {
