@@ -6,7 +6,7 @@ const ROM_START: usize = 0x8000 - OFFSET;
 const PC_RESET_1: usize = 0xFFFC - OFFSET;
 const PC_RESET_2: usize = 0xFFFD - OFFSET;
 
-pub(crate) struct TestCartridge {
+pub struct TestCartridge {
     memory: [u8; SIZE]
 }
 
