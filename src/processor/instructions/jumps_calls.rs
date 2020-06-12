@@ -6,6 +6,6 @@ impl<C : Cartridge> Core<C> {
     /// Jump.
     pub(crate) fn jmp(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        self.registers.program_counter = addr;
+        self.registers.program_counter = addr.address().unwrap();
     }
 }

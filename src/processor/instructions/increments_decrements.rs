@@ -4,14 +4,13 @@ use crate::cartridge::Cartridge;
 
 impl<C : Cartridge> Core<C> {
     fn inc_dec<F : Fn(u8) -> u8>(&mut self, address_mode: AddressMode, f: F) {
-        let addr = self.address(address_mode);
-        let value = self.read(addr);
-        let result = f(value);
+        let fetch = self.address(address_mode);
+        let result = f(fetch.read(self));
 
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        self.write(addr, result);
+        fetch.write(self, result);
     }
 
     /// Increment.

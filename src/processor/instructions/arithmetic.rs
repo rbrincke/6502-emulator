@@ -20,14 +20,14 @@ impl<C : Cartridge> Core<C> {
     /// Add with carry.
     pub(crate) fn adc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = self.read(addr);
+        let value = addr.read(self);
         self.adc_value(value);
     }
 
     /// Subtract with carry.
     pub(crate) fn sbc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = self.read(addr) ^ 0xFF;
+        let value = addr.read(self) ^ 0xFF;
         self.adc_value(value);
     }
 }
