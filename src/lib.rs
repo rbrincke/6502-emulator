@@ -1,7 +1,8 @@
 #[macro_use]
 extern crate phf;
 
-mod processor;
+pub mod processor;
+pub mod cartridge;
 
 fn main() {
     println!("Hello, world!");

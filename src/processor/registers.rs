@@ -20,7 +20,7 @@ pub struct Registers {
 }
 
 impl Registers {
-    pub fn new() -> Registers {
+    pub(crate) fn new() -> Registers {
         Registers {
             program_counter: 0,
             stack_pointer: 0,
@@ -31,16 +31,24 @@ impl Registers {
         }
     }
 
-    pub fn set(&mut self, flag: Flag) {
+    pub(crate) fn set_flag_to(&mut self, flag: Flag, v: bool) {
+        if v {
+            self.set_flag(flag)
+        } else {
+            self.clear_flag(flag);
+        }
+    }
+
+    pub(crate) fn set_flag(&mut self, flag: Flag) {
         self.status |= 0x1 << (flag as u8);
     }
 
-    pub fn get(&self, flag: Flag) -> bool {
+    pub fn get_flag(&self, flag: Flag) -> bool {
         let v = self.status >> (flag as u8);
         (v & 0x1) == 1
     }
 
-    pub fn clear(&mut self, flag: Flag) {
+    pub(crate) fn clear_flag(&mut self, flag: Flag) {
         self.status &= !(0x1 << (flag as u8));
     }
 }
@@ -51,17 +59,15 @@ mod tests {
 
     #[test]
     fn test_set_get_clear() {
-        let mut registers = Registers::new();
-
         fn test(flag: Flag) {
             let mut registers = Registers::new();
-            assert_eq!(false, registers.get(flag));
+            assert_eq!(false, registers.get_flag(flag));
 
-            registers.set(flag);
-            assert_eq!(true, registers.get(flag));
+            registers.set_flag(flag);
+            assert_eq!(true, registers.get_flag(flag));
 
-            registers.clear(flag);
-            assert_eq!(false, registers.get(flag));
+            registers.clear_flag(flag);
+            assert_eq!(false, registers.get_flag(flag));
         }
 
         test(Flag::Carry);
@@ -76,17 +82,17 @@ mod tests {
     #[test]
     fn test_clear_retains_others() {
         let mut registers = Registers::new();
-        registers.set(Flag::Carry);
-        registers.set(Flag::Break);
-        registers.set(Flag::Negative);
+        registers.set_flag(Flag::Carry);
+        registers.set_flag(Flag::Break);
+        registers.set_flag(Flag::Negative);
 
-        assert_eq!(true, registers.get(Flag::Carry));
-        assert_eq!(true, registers.get(Flag::Break));
-        assert_eq!(true, registers.get(Flag::Negative));
+        assert_eq!(true, registers.get_flag(Flag::Carry));
+        assert_eq!(true, registers.get_flag(Flag::Break));
+        assert_eq!(true, registers.get_flag(Flag::Negative));
 
-        registers.clear(Flag::Carry);
-        assert_eq!(false, registers.get(Flag::Carry));
-        assert_eq!(true, registers.get(Flag::Break));
-        assert_eq!(true, registers.get(Flag::Negative));
+        registers.clear_flag(Flag::Carry);
+        assert_eq!(false, registers.get_flag(Flag::Carry));
+        assert_eq!(true, registers.get_flag(Flag::Break));
+        assert_eq!(true, registers.get_flag(Flag::Negative));
     }
 }
