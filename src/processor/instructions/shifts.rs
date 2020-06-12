@@ -1,13 +1,13 @@
 use crate::cartridge::Cartridge;
-use crate::processor::core::Core;
 use crate::processor::addressing::AddressMode;
 use crate::processor::registers::Flag;
+use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
     /// Arithmetic shift left.
     fn asl(&mut self, address_mode: AddressMode) {
-        let fetch = self.address(address_mode);
-        let value = fetch.read(self);
+        let address = self.address(address_mode);
+        let value = self.read_fetched(address);
 
         let result_intermediate = (value as u16) << 1;
         self.check_value_set_carry(result_intermediate);
@@ -16,13 +16,13 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        fetch.write(self, result);
+        self.write_fetched(address, result);
     }
 
     /// Logical shift right.
     fn lsr(&mut self, address_mode: AddressMode) {
-        let fetch = self.address(address_mode);
-        let value = fetch.read(self);
+        let address = self.address(address_mode);
+        let value = self.read_fetched(address);
 
         let new_carry_flag_value = value & 0b10000000 == 0;
         let result = value >> 1;
@@ -31,13 +31,13 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        fetch.write(self, result);
+        self.write_fetched(address, result);
     }
 
     /// Rotate left.
     fn rol(&mut self, address_mode: AddressMode) {
-        let fetch = self.address(address_mode);
-        let value = fetch.read(self);
+        let address = self.address(address_mode);
+        let value = self.read_fetched(address);
 
         let new_carry_flag_value = value & 0b10000000 == 0;
         let result = value << 1 | self.registers.get_flag(Flag::Carry) as u8;
@@ -46,13 +46,13 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        fetch.write(self, result);
+        self.write_fetched(address, result);
     }
 
     /// Rotate right.
     fn ror(&mut self, address_mode: AddressMode) {
-        let fetch = self.address(address_mode);
-        let value = fetch.read(self);
+        let address = self.address(address_mode);
+        let value = self.read_fetched(address);
 
         let new_carry_flag_value = value & 0b00000001 == 0;
         let result = value >> 1 | (self.registers.get_flag(Flag::Carry) as u8) << 7;
@@ -61,6 +61,6 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        fetch.write(self, result);
+        self.write_fetched(address, result);
     }
 }

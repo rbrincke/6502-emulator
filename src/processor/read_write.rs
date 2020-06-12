@@ -1,37 +1,9 @@
 use crate::processor::registers::{Registers, Flag};
 use crate::cartridge::Cartridge;
-
-pub struct Core<C : Cartridge> {
-    pub registers: Registers,
-    memory: [u8; 0x8000],
-    cartridge: C,
-    tick: u32
-}
+use crate::processor::addressing::Address;
+use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
-    pub fn new(cartridge: C) -> Core<C> {
-        let mut core = Core {
-            registers: Registers::new(),
-            memory: [0; 0x8000],
-            cartridge,
-            tick: 0
-        };
-
-        core.reset();
-        core
-    }
-
-    fn reset(&mut self) {
-        // Initialize the program counter from the predefined memory locations.
-        self.registers.program_counter = self.read_two(0xFFFc, 0xFFFd);
-        self.registers.set_flag(Flag::Interrupt);
-    }
-
-    /// Increment cycle.
-    pub(crate) fn tick(&mut self) {
-        self.tick += 1;
-    }
-
     pub(crate) fn read_two(&mut self, address_least_significant: u16, address_most_significant: u16) -> u16 {
         ((self.read(address_most_significant) as u16) << 8) | (self.read(address_least_significant) as u16)
     }
@@ -54,9 +26,17 @@ impl<C : Cartridge> Core<C> {
         }
     }
 
-    pub fn execute_next(&mut self) {
-        let instruction = self.read(self.registers.program_counter);
-        self.execute(instruction);
-        self.registers.program_counter += 1;
+    pub(crate) fn read_fetched(&mut self, address: Address) -> u8 {
+        match address {
+            Address::Accumulator => self.registers.accumulator,
+            Address::Memory(a) => self.read(a)
+        }
+    }
+
+    pub(crate) fn write_fetched(&mut self, address: Address, value: u8) {
+        match address {
+            Address::Accumulator => self.registers.accumulator = value,
+            Address::Memory(a) => self.write(a, value),
+        }
     }
 }

@@ -1,11 +1,11 @@
 use crate::processor::addressing::AddressMode;
-use crate::processor::core::Core;
 use crate::cartridge::Cartridge;
+use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
     fn ld_set_flags(&mut self, address_mode: AddressMode) -> u8 {
-        let addr = self.address(address_mode);
-        let value = addr.read(self);
+        let address = self.address(address_mode);
+        let value = self.read_fetched(address);
 
         self.check_value_set_zero(value);
         self.check_value_set_negative(value);
@@ -32,8 +32,8 @@ impl<C : Cartridge> Core<C> {
     }
 
     fn st(&mut self, address_mode: AddressMode, value: u8) {
-        let addr = self.address(address_mode);
-        addr.write(self, value);
+        let address = self.address(address_mode);
+        self.write_fetched(address, value);
     }
 
     // Store accumulator.

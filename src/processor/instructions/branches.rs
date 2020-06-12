@@ -1,7 +1,7 @@
-use crate::processor::core::Core;
 use crate::processor::registers::Flag;
 use crate::processor::instructions::is_page_crossed;
 use crate::cartridge::Cartridge;
+use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
     fn branch(&mut self, flag: Flag, branch_if: bool) {

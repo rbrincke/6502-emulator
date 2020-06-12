@@ -1,7 +1,7 @@
-use crate::processor::core::Core;
 use crate::processor::registers::Flag;
 use crate::cartridge::Cartridge;
 use crate::processor::addressing::AddressMode;
+use crate::processor::Core;
 
 mod arithmetic;
 mod branches;

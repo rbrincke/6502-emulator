@@ -1,8 +1,8 @@
-use crate::processor::core::Core;
 use crate::cartridge::Cartridge;
+use crate::processor::Core;
 
+#[derive(Debug, Copy, Clone)]
 pub enum AddressMode {
-    Implicit,
     Accumulator,
     Immediate,
     ZeroPage,
@@ -17,31 +17,9 @@ pub enum AddressMode {
     IndirectIndexed,
 }
 
-pub(crate) enum Access {
+#[derive(Debug, Copy, Clone)]
+pub(crate) enum Address {
     Accumulator, Memory(u16)
-}
-
-impl Access {
-    pub(crate) fn address(&self) -> Option<u16> {
-        match *self {
-            Access::Accumulator => None,
-            Access::Memory(a) => Some(a)
-        }
-    }
-
-    pub(crate) fn read<C : Cartridge>(&self, core: &mut Core<C>) -> u8 {
-        match *self {
-            Access::Accumulator => core.registers.accumulator,
-            Access::Memory(a) => core.read(a)
-        }
-    }
-
-    pub(crate) fn write<C : Cartridge>(&self, core: &mut Core<C>, value: u8) {
-        match *self {
-            Access::Accumulator => core.registers.accumulator = value,
-            Access::Memory(a) => core.write(a, value),
-        }
-    }
 }
 
 impl<C : Cartridge> Core<C> {
@@ -90,22 +68,22 @@ impl<C : Cartridge> Core<C> {
         self.read_two(first, second)
     }
 
-    /// Indirection, used only by JMP.
+    /// Indirection.
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
         self.read_two(least_significant, least_significant + 1)
     }
 
-    pub(crate) fn address(&mut self, address_mode: AddressMode) -> Access {
+    pub(crate) fn address(&mut self, address_mode: AddressMode) -> Address {
         match &address_mode {
-            AddressMode::Accumulator => Access::Accumulator,
-            AddressMode::Immediate => Access::Memory(self.address_immediate()),
-            AddressMode::ZeroPage => Access::Memory(self.address_zero_page()),
-            AddressMode::ZeroPageX => Access::Memory(self.address_zero_page_offset_x()),
-            AddressMode::ZeroPageY => Access::Memory(self.address_zero_page_offset_y()),
-            AddressMode::Relative => Access::Memory(self.address_relative()),
-            AddressMode::Absolute => Access::Memory(self.address_absolute()),
-            AddressMode::Indirect => Access::Memory(self.address_indirect()),
+            AddressMode::Accumulator => Address::Accumulator,
+            AddressMode::Immediate => Address::Memory(self.address_immediate()),
+            AddressMode::ZeroPage => Address::Memory(self.address_zero_page()),
+            AddressMode::ZeroPageX => Address::Memory(self.address_zero_page_offset_x()),
+            AddressMode::ZeroPageY => Address::Memory(self.address_zero_page_offset_y()),
+            AddressMode::Relative => Address::Memory(self.address_relative()),
+            AddressMode::Absolute => Address::Memory(self.address_absolute()),
+            AddressMode::Indirect => Address::Memory(self.address_indirect()),
             _ => panic!("Unsupported address mode.")
         }
     }

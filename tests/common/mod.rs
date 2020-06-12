@@ -1,6 +1,6 @@
-use nes::processor::core::Core;
 use crate::common::cartridge::TestCartridge;
 use nes::processor::registers::Flag;
+use nes::processor::Core;
 
 mod cartridge;
 

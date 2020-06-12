@@ -1,6 +1,6 @@
-use crate::processor::core::Core;
 use crate::processor::addressing::AddressMode;
 use crate::cartridge::Cartridge;
+use crate::processor::Core;
 
 // http://nparker.llx.com/a2/opcodes.html#ins02
 impl<C : Cartridge> Core<C> {

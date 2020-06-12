@@ -1,7 +1,7 @@
-use crate::processor::core::Core;
 use crate::processor::addressing::AddressMode;
 use crate::processor::registers::Flag;
 use crate::cartridge::Cartridge;
+use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
     fn adc_value(&mut self, value: u8) {
@@ -20,14 +20,14 @@ impl<C : Cartridge> Core<C> {
     /// Add with carry.
     pub(crate) fn adc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = addr.read(self);
+        let value = self.read_fetched(addr);
         self.adc_value(value);
     }
 
     /// Subtract with carry.
     pub(crate) fn sbc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = addr.read(self) ^ 0xFF;
+        let value = self.read_fetched(addr) ^ 0xFF;
         self.adc_value(value);
     }
 }
