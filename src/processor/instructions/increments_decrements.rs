@@ -5,12 +5,12 @@ use crate::processor::Core;
 impl<C : Cartridge> Core<C> {
     fn inc_dec<F : Fn(u8) -> u8>(&mut self, address_mode: AddressMode, f: F) {
         let address = self.address(address_mode);
-        let result = f(self.read_fetched(address));
+        let result = f(self.read(address));
 
         self.check_value_set_zero(result);
         self.check_value_set_negative(result);
 
-        self.write_fetched(address, result)
+        self.write(address, result)
     }
 
     /// Increment.

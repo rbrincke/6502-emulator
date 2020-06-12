@@ -9,7 +9,7 @@ impl<C : Cartridge> Core<C> {
     /// Force interrupt.
     pub(crate) fn brk(&mut self) {
         // TODO: Push program counter and processor status on stack.
-        self.registers.program_counter = self.read_two(0xFFFe, 0xFFFf);
+        self.registers.program_counter = self.read_two_raw(0xFFFe, 0xFFFf);
         self.registers.set_flag(Flag::Break);
     }
 }
