@@ -1,6 +1,5 @@
 use crate::processor::registers::{Registers, Flag};
 use crate::cartridge::Cartridge;
-use crate::processor::addressing::Address;
 use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
@@ -23,20 +22,6 @@ impl<C : Cartridge> Core<C> {
             0x0000..=0x4016 => self.memory[address as usize] = value,
             0x4018..=0xFFFF => self.cartridge.write(address, value),
             _ => panic!("Attempt to read unmapped address {}", address)
-        }
-    }
-
-    pub(crate) fn read(&mut self, address: Address) -> u8 {
-        match address {
-            Address::Accumulator => self.registers.accumulator,
-            Address::Memory(a) => self.read_raw(a)
-        }
-    }
-
-    pub(crate) fn write(&mut self, address: Address, value: u8) {
-        match address {
-            Address::Accumulator => self.registers.accumulator = value,
-            Address::Memory(a) => self.write_raw(a, value),
         }
     }
 }

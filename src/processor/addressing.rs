@@ -3,7 +3,6 @@ use crate::processor::Core;
 
 #[derive(Debug, Copy, Clone)]
 pub enum AddressMode {
-    Accumulator,
     Immediate,
     ZeroPage,
     ZeroPageX,
@@ -17,12 +16,7 @@ pub enum AddressMode {
     IndirectIndexed,
 }
 
-#[derive(Debug, Copy, Clone)]
-pub(crate) enum Address {
-    Accumulator, Memory(u16)
-}
-
-impl<C : Cartridge> Core<C> {
+impl<C: Cartridge> Core<C> {
     fn address_zero_page(&mut self) -> u16 {
         let immediate_address = self.address_immediate();
         self.read_raw(immediate_address) as u16
@@ -68,23 +62,41 @@ impl<C : Cartridge> Core<C> {
         self.read_two_raw(first, second)
     }
 
+    fn address_absolute_x(&mut self) -> u16 {
+        self.address_absolute() + self.registers.x as u16
+    }
+
+    fn address_absolute_y(&mut self) -> u16 {
+        self.address_absolute() + self.registers.y as u16
+    }
+
+    fn address_indexed_indirect(&mut self) -> u16 {
+        unimplemented!()
+    }
+
+    fn address_indirect_indexed(&mut self) -> u16 {
+        unimplemented!()
+    }
+
     /// Indirection.
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
         self.read_two_raw(least_significant, least_significant + 1)
     }
 
-    pub(crate) fn address(&mut self, address_mode: AddressMode) -> Address {
-        match &address_mode {
-            AddressMode::Accumulator => Address::Accumulator,
-            AddressMode::Immediate => Address::Memory(self.address_immediate()),
-            AddressMode::ZeroPage => Address::Memory(self.address_zero_page()),
-            AddressMode::ZeroPageX => Address::Memory(self.address_zero_page_offset_x()),
-            AddressMode::ZeroPageY => Address::Memory(self.address_zero_page_offset_y()),
-            AddressMode::Relative => Address::Memory(self.address_relative()),
-            AddressMode::Absolute => Address::Memory(self.address_absolute()),
-            AddressMode::Indirect => Address::Memory(self.address_indirect()),
-            _ => panic!("Unsupported address mode.")
+    pub(crate) fn address(&mut self, address_mode: AddressMode) -> u16 {
+        match address_mode {
+            AddressMode::Immediate => self.address_immediate(),
+            AddressMode::ZeroPage => self.address_zero_page(),
+            AddressMode::ZeroPageX => self.address_zero_page_offset_x(),
+            AddressMode::ZeroPageY => self.address_zero_page_offset_y(),
+            AddressMode::Relative => self.address_relative(),
+            AddressMode::Absolute => self.address_absolute(),
+            AddressMode::Indirect => self.address_indirect(),
+            AddressMode::AbsoluteX => self.address_absolute_x(),
+            AddressMode::AbsoluteY => self.address_absolute_y(),
+            AddressMode::IndexedIndirect => self.address_indexed_indirect(),
+            AddressMode::IndirectIndexed => self.address_indirect_indexed()
         }
     }
 }
