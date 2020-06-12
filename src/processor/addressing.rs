@@ -17,7 +17,7 @@ pub enum AddressMode {
     IndirectIndexed,
 }
 
-pub enum Access {
+pub(crate) enum Access {
     Accumulator, Memory(u16)
 }
 
@@ -94,14 +94,6 @@ impl<C : Cartridge> Core<C> {
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
         self.read_two(least_significant, least_significant + 1)
-    }
-
-    fn read_accumulator(&self) -> u8 {
-        self.registers.accumulator
-    }
-
-    fn write_accumulator(&mut self, value: u8) {
-        self.registers.accumulator = value
     }
 
     pub(crate) fn address(&mut self, address_mode: AddressMode) -> Access {
