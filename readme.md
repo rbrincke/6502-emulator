@@ -20,7 +20,9 @@ A simple way to go from a binary number to its Two's Complement representation i
 
 So why is it called Two's Complement? By definition, the sum of an 8-bit number and its Two's Complement representation is 2<sup>8</sup>.
 
-## Binary arithmetic 
+## Binary arithmetic
+
+### Addition (ADC)
 
 Using the Two's Complement representation introduced before, it is possible to easily add up any two numbers.
 
@@ -75,3 +77,19 @@ For unsigned numbers, the ADC operation may return invalid results. Below is an 
 Adding 127 and 1 leads to a result of -128, which is clearly incorrect. Two numbers with the sign bit set to 0 (positive) were added up, and the result is a number with the sign bit set to 1 (negative). Phrased differently, the sign of both inputs does not match the sign of the result.
 
 This does not mean the overflow flag automatically indicates a result is invalid. The processor itself does not have a notion of signed or unsigned. If the numbers are considered unsigned, such as when adding `0111 1000` (+120) to itself, the operation results in `1111 0000` and leaves the overflow flag set. Whether this is relevant depends on whether the result represents a signed or unsigned number, and the flag is just there to support the cases for which it is.
+
+### Subtraction (SBC)
+
+Subtraction works much like addition, except digits are borrowed rather than carried.
+
+<pre>
+(borrow)         1
+(+5)       0000 0101
+(+3)       0000 0011
+           --------- -
+(+2)       0000 0010
+</pre>
+
+The SBC instruction is a subtract-with-carry, and there is no borrow flag. The inverse of the carry flag is used to borrow, serving as a not-borrow flag. Whenever the carry flag is clear, executing an SBC instruction will lead to a result that is off by 1 because a cleared carry flag indicates a borrow.
+
+Any subtraction can be rewritten as an addition by inverting the subtrahend. For example, `5 - 3` is the same as `5 + (-3)`. This means a subtraction can be rewritten as an addition by taking the Two's Complement of the subtrahend. Taking the Two's Complement is done by inverting all bits, and adding one. Since the carry flag in its role as not-borrow already takes care of adding the 1, SBC is the same as ADC for which the second term's bits are inverted.
