@@ -20,14 +20,42 @@ impl<C : Cartridge> Core<C> {
     /// Add with carry.
     pub(crate) fn adc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = self.read_raw(addr);
+        let value = self.read(addr);
         self.adc_value(value);
     }
 
     /// Subtract with carry.
     pub(crate) fn sbc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = self.read_raw(addr) ^ 0xFF;
+        let value = self.read(addr) ^ 0xFF;
         self.adc_value(value);
+    }
+
+    fn cmp_value(&mut self, first: u8, second: u8) {
+        self.registers.set_flag_to(Flag::Carry, first >= second);
+        let difference = first.wrapping_sub(second);
+        self.check_value_set_negative(difference);
+        self.check_value_set_zero(difference);
+    }
+
+    /// Compare
+    pub(crate) fn cmp(&mut self, address_mode: AddressMode) {
+        let addr = self.address(address_mode);
+        let value = self.read(addr);
+        self.cmp_value(self.registers.accumulator, value);
+    }
+
+    /// Compare X register
+    pub(crate) fn cpx(&mut self, address_mode: AddressMode) {
+        let addr = self.address(address_mode);
+        let value = self.read(addr);
+        self.cmp_value(self.registers.x, value);
+    }
+
+    /// Compare Y register
+    pub(crate) fn cpy(&mut self, address_mode: AddressMode) {
+        let addr = self.address(address_mode);
+        let value = self.read(addr);
+        self.cmp_value(self.registers.y, value);
     }
 }

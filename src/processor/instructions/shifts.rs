@@ -12,9 +12,9 @@ impl<C : Cartridge> Core<C> {
 
     fn shift_address<F : Fn(&mut Self, u8) -> u8>(&mut self, address_mode: AddressMode, shift: F) {
         let address = self.address(address_mode);
-        let value = self.read_raw(address);
+        let value = self.read(address);
         let result = shift(self, value);
-        self.write_raw(address, result);
+        self.write(address, result);
     }
 
     fn asl(&mut self, value: u8) -> u8 {

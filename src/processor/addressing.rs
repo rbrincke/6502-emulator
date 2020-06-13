@@ -19,7 +19,7 @@ pub enum AddressMode {
 impl<C: Cartridge> Core<C> {
     fn address_zero_page(&mut self) -> u16 {
         let immediate_address = self.address_immediate();
-        self.read_raw(immediate_address) as u16
+        self.read(immediate_address) as u16
     }
 
     fn address_zero_page_offset(&mut self, offset: u8) -> u16 {
@@ -47,7 +47,7 @@ impl<C: Cartridge> Core<C> {
 
     pub(crate) fn address_relative(&mut self) -> u16 {
         let immediate_address = self.address_immediate();
-        let value = self.read_raw(immediate_address) as i8;
+        let value = self.read(immediate_address) as i8;
         if value < 0 {
             -value as u16
         } else {
@@ -59,7 +59,7 @@ impl<C: Cartridge> Core<C> {
     fn address_absolute(&mut self) -> u16 {
         let first = self.address_immediate();
         let second = self.address_immediate();
-        self.read_two_raw(first, second)
+        self.read_two(first, second)
     }
 
     fn address_absolute_x(&mut self) -> u16 {
@@ -81,7 +81,7 @@ impl<C: Cartridge> Core<C> {
     /// Indirection.
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
-        self.read_two_raw(least_significant, least_significant + 1)
+        self.read_two(least_significant, least_significant + 1)
     }
 
     pub(crate) fn address(&mut self, address_mode: AddressMode) -> u16 {

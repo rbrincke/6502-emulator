@@ -28,12 +28,12 @@ impl<C : Cartridge> Core<C> {
 
     fn reset(&mut self) {
         // Initialize the program counter from the predefined memory locations.
-        self.registers.program_counter = self.read_two_raw(0xFFFc, 0xFFFd);
+        self.registers.program_counter = self.read_two(0xFFFc, 0xFFFd);
         self.registers.set_flag(Flag::Interrupt);
     }
 
     pub fn execute_next(&mut self) {
-        let instruction = self.read_raw(self.registers.program_counter);
+        let instruction = self.read(self.registers.program_counter);
         self.execute(instruction);
         self.registers.program_counter += 1;
     }

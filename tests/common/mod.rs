@@ -20,3 +20,28 @@ pub fn test_run(mut program: Vec<u8>) -> Core<TestCartridge> {
 
     core
 }
+
+pub(crate) trait FlagAssertions {
+    fn assert_carry(&self, expected: bool);
+    fn assert_zero(&self, expected: bool);
+    fn assert_negative(&self, expected: bool);
+    fn assert_overflow(&self, expected: bool);
+}
+
+impl FlagAssertions for Core<TestCartridge> {
+    fn assert_carry(&self, expected_set: bool) {
+        assert_eq!(self.registers.get_flag(Flag::Carry), expected_set, "Expectation for Carry flag failed.");
+    }
+
+    fn assert_zero(&self, expected_set: bool) {
+        assert_eq!(self.registers.get_flag(Flag::Zero), expected_set, "Expectation for Zero flag failed.");
+    }
+
+    fn assert_negative(&self, expected_set: bool) {
+        assert_eq!(self.registers.get_flag(Flag::Negative), expected_set, "Expectation for Negative flag failed.");
+    }
+
+    fn assert_overflow(&self, expected_set: bool) {
+        assert_eq!(self.registers.get_flag(Flag::Overflow), expected_set, "Expectation for Overflow flag failed.");
+    }
+}

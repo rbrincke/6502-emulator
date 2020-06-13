@@ -8,7 +8,7 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn and(&mut self, address_mode: AddressMode) {
         let address = self.address(address_mode);
 
-        self.registers.accumulator &= self.read_raw(address);
+        self.registers.accumulator &= self.read(address);
         self.check_value_set_zero(self.registers.accumulator);
         self.check_value_set_negative(self.registers.accumulator);
     }
@@ -16,7 +16,7 @@ impl<C : Cartridge> Core<C> {
     /// Bit Test.
     pub(crate) fn bit(&mut self, address_mode: AddressMode) {
         let address = self.address(address_mode);
-        let value = self.read_raw(address);
+        let value = self.read(address);
 
         let bit_and_acc_v = self.registers.accumulator & value;
         self.check_value_set_zero(bit_and_acc_v);
@@ -29,7 +29,7 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn eor(&mut self, address_mode: AddressMode) {
         let address = self.address(address_mode);
 
-        self.registers.accumulator ^= self.read_raw(address);
+        self.registers.accumulator ^= self.read(address);
         self.check_value_set_zero(self.registers.accumulator);
         self.check_value_set_negative(self.registers.accumulator);
     }
@@ -38,7 +38,7 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn ora(&mut self, address_mode: AddressMode) {
         let address = self.address(address_mode);
 
-        self.registers.accumulator |= self.read_raw(address);
+        self.registers.accumulator |= self.read(address);
         self.check_value_set_zero(self.registers.accumulator);
         self.check_value_set_negative(self.registers.accumulator);
     }
