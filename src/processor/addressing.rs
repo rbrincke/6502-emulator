@@ -40,7 +40,7 @@ impl<C: Cartridge> Core<C> {
 
     // In immediate mode the value is embedded in the instruction
     // itself, so read the incremented program counter.
-    fn address_immediate(&mut self) -> u16 {
+    pub(crate) fn address_immediate(&mut self) -> u16 {
         self.registers.program_counter += 1;
         self.registers.program_counter
     }
@@ -56,7 +56,7 @@ impl<C: Cartridge> Core<C> {
     }
 
     /// Full 16-bit address.
-    fn address_absolute(&mut self) -> u16 {
+    pub(crate) fn address_absolute(&mut self) -> u16 {
         let first = self.address_immediate();
         let second = self.address_immediate();
         self.read_two(first, second)
@@ -71,11 +71,15 @@ impl<C: Cartridge> Core<C> {
     }
 
     fn address_indexed_indirect(&mut self) -> u16 {
-        unimplemented!()
+        let least_significant = self.address_zero_page_offset_x();
+        let most_significant = (least_significant + 1) % 0x100;
+        self.read_two(least_significant, most_significant)
     }
 
     fn address_indirect_indexed(&mut self) -> u16 {
-        unimplemented!()
+        let least_significant = self.address_immediate();
+        let most_significant = (least_significant + 1) % 0x100;
+        self.read_two(least_significant, most_significant) + self.registers.y as u16
     }
 
     /// Indirection.

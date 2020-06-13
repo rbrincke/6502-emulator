@@ -16,14 +16,14 @@ pub struct Registers {
     pub accumulator: u8,
     pub x: u8,
     pub y: u8,
-    status: u8
+    pub status: u8
 }
 
 impl Registers {
     pub(crate) fn new() -> Registers {
         Registers {
             program_counter: 0,
-            stack_pointer: 0,
+            stack_pointer: 0xFF,
             accumulator: 0,
             x: 0,
             y: 0,

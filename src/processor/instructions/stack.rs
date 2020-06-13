@@ -14,4 +14,35 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero(self.registers.x);
         self.check_value_set_negative(self.registers.x);
     }
+
+    pub(crate) fn push(&mut self, value: u8) {
+        let address = 0x100 + self.registers.stack_pointer as u16;
+        self.write(address, value);
+        self.registers.stack_pointer -= 1;
+    }
+
+    pub(crate) fn pop(&mut self) -> u8 {
+        self.registers.stack_pointer += 1;
+        let address = 0x100 + self.registers.stack_pointer as u16;
+        let value = self.read(address);
+        value
+    }
+
+    pub(crate) fn pha(&mut self) {
+        self.push(self.registers.accumulator)
+    }
+
+    /// Push processor status.
+    pub(crate) fn php(&mut self) {
+        self.push(self.registers.status)
+    }
+
+    pub(crate) fn pla(&mut self) {
+        self.registers.accumulator = self.pop();
+    }
+
+    /// Pull processor status.
+    pub(crate) fn plp(&mut self) {
+        self.registers.status = self.pop();
+    }
 }

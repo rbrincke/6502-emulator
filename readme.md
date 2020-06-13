@@ -20,6 +20,14 @@ A simple way to go from a binary number to its Two's Complement representation i
 
 So why is it called Two's Complement? By definition, the sum of an 8-bit number and its Two's Complement representation is 2<sup>8</sup>.
 
+## Jump to and return from subroutine (JSR, RTS)
+
+The JSR instruction is 3 bytes long, the latter two of which are the address to which the program jumps. Oddly, the two bytes that are pushed onto the stack do not constitute the location where the program resumes (which would be right after the 3 bytes of the JSR instruction), but instead points to the location of byte 3 of the JSR instruction, one byte short of the actual location.
+
+The RTS instruction in turn returns from a subroutine by popping two bytes off the stack. Because this location is actually at byte 3 of the JSR, the RTS instruction increments this value by 1, which sets the program counter to the correct address.
+
+Because two bytes are pushed onto the stack, it is perhaps worth mentioning that popping something off the stack returns whatever was last pushed.
+
 ## Binary arithmetic
 
 ### Addition (ADC)
