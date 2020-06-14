@@ -1,10 +1,11 @@
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Flag {
     Carry = 0,
     Zero,
     Interrupt,
     Decimal,
     Break,
+    Reserved,
     Overflow,
     Negative
 }
@@ -27,7 +28,7 @@ impl Registers {
             accumulator: 0,
             x: 0,
             y: 0,
-            status: 0
+            status: 0b00100000
         }
     }
 

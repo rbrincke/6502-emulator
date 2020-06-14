@@ -29,7 +29,6 @@ impl<C : Cartridge> Core<C> {
     fn reset(&mut self) {
         // Initialize the program counter from the predefined memory locations.
         self.registers.program_counter = self.read_two(0xFFFc, 0xFFFd);
-        self.registers.set_flag(Flag::Interrupt);
     }
 
     pub fn execute_next(&mut self) {
