@@ -37,7 +37,7 @@ macro_rules! branch_tests {
     }
 }
 
-branch_tests!(
+branch_tests!{
     bcc_clear: (None, BCC::relative, true),
     bcc_set:   (Some(Flag::Carry), BCC::relative, false),
     bcs_set:   (Some(Flag::Carry), BCS::relative, true),
@@ -50,4 +50,4 @@ branch_tests!(
     bvs_clear: (None, BVS::relative, false),
     bpl_pos:   (None, BPL::relative, true),
     bpl_neg:   (Some(Flag::Negative), BPL::relative, false)
-);
+}
