@@ -118,13 +118,6 @@ fn test_multi_byte() {
     assert_eq!(r, 792)
 }
 
-fn test_cmp(value: u8, compare_with: u8, expected_flags: Vec<Flag>) {
-    test(vec![
-        LDA::immediate(value),
-        CMP::immediate(compare_with)
-    ]).assert_flags_set(expected_flags)
-}
-
 #[test]
 fn test_cmp_1() {
     test(vec![
