@@ -15,7 +15,7 @@ impl<C : Cartridge> Core<C> {
 
     /// Increment.
     pub(crate) fn inc(&mut self, address_mode: AddressMode) {
-        self.inc_dec(address_mode, |v| v + 1)
+        self.inc_dec(address_mode, |v| v.wrapping_add(1))
     }
 
     /// Increment X.
@@ -28,7 +28,7 @@ impl<C : Cartridge> Core<C> {
 
     /// Increment Y.
     pub(crate) fn iny(&mut self) {
-        self.registers.y += 1;
+        self.registers.y = self.registers.y.wrapping_add(1);
 
         self.check_value_set_zero(self.registers.y);
         self.check_value_set_negative(self.registers.y);
@@ -36,18 +36,18 @@ impl<C : Cartridge> Core<C> {
 
     /// Decrement.
     pub(crate) fn dec(&mut self, address_mode: AddressMode) {
-        self.inc_dec(address_mode, |v| v - 1)
+        self.inc_dec(address_mode, |v| v.wrapping_sub(1))
     }
 
     pub(crate) fn dex(&mut self) {
-        self.registers.x -= 1;
+        self.registers.x = self.registers.x.wrapping_sub(1);
 
         self.check_value_set_zero(self.registers.x);
         self.check_value_set_negative(self.registers.x);
     }
 
     pub(crate) fn dey(&mut self) {
-        self.registers.y -= 1;
+        self.registers.y = self.registers.x.wrapping_sub(1);
 
         self.check_value_set_zero(self.registers.y);
         self.check_value_set_negative(self.registers.y);

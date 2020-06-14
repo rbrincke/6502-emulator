@@ -5,7 +5,7 @@ mod common;
 use nes::processor::registers::Flag;
 use crate::common::{test, TestAssertions};
 use nes::processor::registers::Flag::{Negative, Carry, Zero, Overflow};
-use nes::processor::instructions::set::*;
+use nes::processor::instructions::opcodes::*;
 
 #[test]
 fn test_adc_positive() {
@@ -116,6 +116,13 @@ fn test_multi_byte() {
 
     let r = ((core.registers.accumulator as u16) << 8) | (core.registers.x as u16);
     assert_eq!(r, 792)
+}
+
+fn test_cmp(value: u8, compare_with: u8, expected_flags: Vec<Flag>) {
+    test(vec![
+        LDA::immediate(value),
+        CMP::immediate(compare_with)
+    ]).assert_flags_set(expected_flags)
 }
 
 #[test]

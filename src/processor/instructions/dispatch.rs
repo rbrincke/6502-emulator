@@ -1,7 +1,7 @@
 use crate::processor::addressing::AddressMode;
 use crate::cartridge::Cartridge;
 use crate::processor::Core;
-use crate::processor::instructions::set::*;
+use crate::processor::instructions::opcodes::*;
 
 // http://nparker.llx.com/a2/opcodes.html#ins02
 impl<C : Cartridge> Core<C> {
@@ -29,17 +29,17 @@ impl<C : Cartridge> Core<C> {
             ASL::ZEROPAGEX => self.asl_mem(AddressMode::ZeroPageX),
             ASL::ABSOLUTE => self.asl_mem(AddressMode::Absolute),
             ASL::ABSOLUTEX => self.asl_mem(AddressMode::AbsoluteX),
-            BCC::IMPLIED => self.bcc(),
-            BCS::IMPLIED => self.bcs(),
-            BEQ::IMPLIED => self.beq(),
+            BCC::RELATIVE => self.bcc(),
+            BCS::RELATIVE => self.bcs(),
+            BEQ::RELATIVE => self.beq(),
             BIT::ZEROPAGE => self.bit(AddressMode::ZeroPage),
             BIT::ABSOLUTE => self.bit(AddressMode::Absolute),
-            BMI::IMPLIED => self.bmi(),
-            BNE::IMPLIED => self.bne(),
-            BPL::IMPLIED => self.bpl(),
+            BMI::RELATIVE => self.bmi(),
+            BNE::RELATIVE => self.bne(),
+            BPL::RELATIVE => self.bpl(),
             BRK::IMPLIED => self.brk(),
-            BVC::IMPLIED => self.bvc(),
-            BVS::IMPLIED => self.bvs(),
+            BVC::RELATIVE => self.bvc(),
+            BVS::RELATIVE => self.bvs(),
             CLC::IMPLIED => self.clc(),
             CLD::IMPLIED => self.cld(),
             CLI::IMPLIED => self.cli(),

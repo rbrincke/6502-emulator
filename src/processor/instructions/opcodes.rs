@@ -13,7 +13,13 @@ pub trait AbsoluteX { const ABSOLUTEX: u8; }
 pub trait AbsoluteY { const ABSOLUTEY: u8; }
 pub trait IndexedIndirect { const INDEXEDINDIRECT: u8; }
 pub trait IndirectIndexed { const INDIRECTINDEXED: u8; }
-pub trait Relative { const RELATIVE: u8; }
+pub trait Relative {
+    const RELATIVE: u8;
+    fn relative(displacement: u8) -> Vec<u8> {
+        vec![Self::RELATIVE, displacement]
+    }
+}
+
 pub trait Accumulator {
     const ACCUMULATOR: u8;
     fn accumulator() -> Vec<u8> {
@@ -58,35 +64,35 @@ impl Absolute for ASL { const ABSOLUTE: u8 = 0x0eu8; }
 impl AbsoluteX for ASL { const ABSOLUTEX: u8 = 0x1eu8; }
 
 pub struct BCC;
-impl Implied for BCC { const IMPLIED: u8 = 0x90u8; }
+impl Relative for BCC { const RELATIVE: u8 = 0x90u8; }
 
 pub struct BCS;
-impl Implied for BCS { const IMPLIED: u8 = 0xb0u8; }
+impl Relative for BCS { const RELATIVE: u8 = 0xb0u8; }
 
 pub struct BEQ;
-impl Implied for BEQ { const IMPLIED: u8 = 0xf0u8; }
+impl Relative for BEQ { const RELATIVE: u8 = 0xf0u8; }
 
 pub struct BIT;
 impl ZeroPage for BIT { const ZEROPAGE: u8 = 0x24u8; }
 impl Absolute for BIT { const ABSOLUTE: u8 = 0x2cu8; }
 
 pub struct BMI;
-impl Implied for BMI { const IMPLIED: u8 = 0x30u8; }
+impl Relative for BMI { const RELATIVE: u8 = 0x30u8; }
 
 pub struct BNE;
-impl Implied for BNE { const IMPLIED: u8 = 0xd0u8; }
+impl Relative for BNE { const RELATIVE: u8 = 0xd0u8; }
 
 pub struct BPL;
-impl Implied for BPL { const IMPLIED: u8 = 0x10u8; }
+impl Relative for BPL { const RELATIVE: u8 = 0x10u8; }
 
 pub struct BRK;
 impl Implied for BRK { const IMPLIED: u8 = 0x00u8; }
 
 pub struct BVC;
-impl Implied for BVC { const IMPLIED: u8 = 0x50u8; }
+impl Relative for BVC { const RELATIVE: u8 = 0x50u8; }
 
 pub struct BVS;
-impl Implied for BVS { const IMPLIED: u8 = 0x70u8; }
+impl Relative for BVS { const RELATIVE: u8 = 0x70u8; }
 
 pub struct CLC;
 impl Implied for CLC { const IMPLIED: u8 = 0x18u8; }

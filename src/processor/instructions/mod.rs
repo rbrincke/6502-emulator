@@ -12,7 +12,7 @@ mod jumps_calls;
 mod load_store;
 mod logical;
 mod register;
-pub mod set;
+pub mod opcodes;
 mod shifts;
 mod stack;
 mod system;

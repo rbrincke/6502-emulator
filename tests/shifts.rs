@@ -5,7 +5,7 @@ mod common;
 use nes::processor::registers::Flag;
 use crate::common::{test, TestAssertions};
 use nes::processor::registers::Flag::{Carry, Negative};
-use nes::processor::instructions::set::*;
+use nes::processor::instructions::opcodes::*;
 
 #[test]
 fn test_asl() {

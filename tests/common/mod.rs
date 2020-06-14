@@ -2,14 +2,14 @@ use crate::common::cartridge::TestCartridge;
 use nes::processor::registers::Flag;
 use nes::processor::Core;
 use nes::processor::registers::Flag::{Zero, Carry, Interrupt, Decimal, Overflow, Negative};
-use nes::processor::instructions::set::{Implied, Accumulator, Immediate};
+use nes::processor::instructions::opcodes::{Implied, Accumulator, Immediate};
 
 mod cartridge;
 
 /// Run a series of instructions and then return the machine state.
 ///
 /// A single BRK instruction is added at the end of the Vec of instructions. Instructions
-/// are then executed until the BRK flag is set.
+/// are executed until the BRK flag is set.
 pub fn test(instructions: Vec<Vec<u8>>) -> Core<TestCartridge> {
     let mut program: Vec<u8> = instructions.into_iter().flatten().collect();
 
