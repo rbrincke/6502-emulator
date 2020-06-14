@@ -4,7 +4,7 @@ use crate::processor::registers::{Registers, Flag};
 pub mod read_write;
 pub mod registers;
 mod addressing;
-mod instructions;
+pub mod instructions;
 
 pub struct Core<C : Cartridge> {
     pub registers: Registers,

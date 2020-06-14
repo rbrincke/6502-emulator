@@ -12,14 +12,10 @@ mod jumps_calls;
 mod load_store;
 mod logical;
 mod register;
+pub mod set;
 mod shifts;
 mod stack;
 mod system;
-
-struct Result {
-    addr: u16,
-    value: u8
-}
 
 impl<C : Cartridge> Core<C> {
     fn check_value_set_zero(&mut self, v: u8) {

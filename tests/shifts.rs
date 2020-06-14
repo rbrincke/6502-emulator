@@ -5,13 +5,14 @@ mod common;
 use nes::processor::registers::Flag;
 use crate::common::{test, TestAssertions};
 use nes::processor::registers::Flag::{Carry, Negative};
+use nes::processor::instructions::set::*;
 
 #[test]
 fn test_asl() {
     let core = test(vec![
-        0x18u8,                    // Clear carry.
-        0xa9u8, 0b10001111 as u8,  // Load 'value' into accumulator.
-        0x0au8                     // ASL
+        CLC::implied(),
+        LDA::immediate(0b10001111),
+        ASL::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry]);
@@ -21,9 +22,9 @@ fn test_asl() {
 #[test]
 fn test_lsr() {
     let core = test(vec![
-        0x18u8,                    // Clear carry.
-        0xa9u8, 0b10001111 as u8,       // Load 'value' into accumulator.
-        0x4au8                     // LSR
+        CLC::implied(),
+        LDA::immediate(0b10001111),
+        LSR::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry]);
@@ -33,9 +34,9 @@ fn test_lsr() {
 #[test]
 fn test_rol_carry_cleared() {
     let core = test(vec![
-        0x18u8,                    // Clear carry.
-        0xa9u8, 0b10001111 as u8,  // Load 'value' into accumulator.
-        0x2au8                     // ROL
+        CLC::implied(),
+        LDA::immediate(0b10001111),
+        ROL::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry]);
@@ -45,9 +46,9 @@ fn test_rol_carry_cleared() {
 #[test]
 fn test_rol_carry_set() {
     let core = test(vec![
-        0x38u8,                    // Set carry.
-        0xa9u8, 0b10001111 as u8,  // Load 'value' into accumulator.
-        0x2au8                     // ROL
+        SEC::implied(),
+        LDA::immediate(0b10001111),
+        ROL::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry]);
@@ -57,9 +58,9 @@ fn test_rol_carry_set() {
 #[test]
 fn test_ror_carry_cleared() {
     let core = test(vec![
-        0x18u8,                    // Clear carry.
-        0xa9u8, 0b10001111 as u8,  // Load 'value' into accumulator.
-        0x6au8                     // ROR
+        CLC::implied(),
+        LDA::immediate(0b10001111),
+        ROR::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry]);
@@ -69,9 +70,9 @@ fn test_ror_carry_cleared() {
 #[test]
 fn test_ror_carry_set() {
     let core = test(vec![
-        0x38u8,                    // Set carry.
-        0xa9u8, 0b10001111 as u8,  // Load 'value' into accumulator.
-        0x6au8                     // ROR
+        SEC::implied(),
+        LDA::immediate(0b10001111),
+        ROR::accumulator()
     ]);
 
     core.assert_flags_set(vec![Carry, Negative]);
