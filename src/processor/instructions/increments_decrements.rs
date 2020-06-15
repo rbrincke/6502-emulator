@@ -20,7 +20,7 @@ impl<C : Cartridge> Core<C> {
 
     /// Increment X.
     pub(crate) fn inx(&mut self) {
-        self.registers.x += 1;
+        self.registers.x = self.registers.x.wrapping_add(1);
 
         self.check_value_set_zero(self.registers.x);
         self.check_value_set_negative(self.registers.x);
@@ -47,7 +47,7 @@ impl<C : Cartridge> Core<C> {
     }
 
     pub(crate) fn dey(&mut self) {
-        self.registers.y = self.registers.x.wrapping_sub(1);
+        self.registers.y = self.registers.y.wrapping_sub(1);
 
         self.check_value_set_zero(self.registers.y);
         self.check_value_set_negative(self.registers.y);
