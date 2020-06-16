@@ -2,19 +2,34 @@ use crate::common::cartridge::TestCartridge;
 use nes::processor::registers::Flag;
 use nes::processor::Core;
 use nes::processor::registers::Flag::{Zero, Carry, Interrupt, Decimal, Overflow, Negative};
-use nes::processor::instructions::opcodes::{Implied, Accumulator, Immediate};
+use nes::processor::instructions::opcodes::{Implied, Accumulator, Immediate, LDA, PHA, PLP, BRK};
 
 mod cartridge;
 
 /// Run a series of instructions and then return the machine state.
 ///
-/// A single BRK instruction is added at the end of the Vec of instructions. Instructions
-/// are executed until the BRK flag is set.
+/// LDA, PHA and PLP instructions are prepended to it. A single BRK instruction is
+/// added at the end of the Vec of instructions. Instructions are executed until the
+/// BRK flag is set.
 pub fn test(instructions: Vec<Vec<u8>>) -> Core<TestCartridge> {
-    let mut program: Vec<u8> = instructions.into_iter().flatten().collect();
+    test_with_flags(instructions, vec![])
+}
+
+/// Run a series of instructions and then return the machine state. Sets the flags
+/// before running any instructions.
+///
+/// LDA, PHA and PLP instructions are prepended to it. A single BRK instruction is
+/// added at the end of the Vec of instructions. Instructions are executed until the
+/// BRK flag is set.
+pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<TestCartridge> {
+    // Add flag initialization.
+    let mut program = flatten(instructions_set_flag(flags));
+
+    // Add instructions.
+    program.extend(flatten(instructions));
 
     // Add BRK;
-    program.push(0x00u8);
+    program.extend(BRK::implied());
 
     let mut core = Core::new(
         TestCartridge::new(program)
@@ -27,6 +42,25 @@ pub fn test(instructions: Vec<Vec<u8>>) -> Core<TestCartridge> {
     core
 }
 
+fn flatten(instructions: Vec<Vec<u8>>) -> Vec<u8> {
+    instructions.into_iter().flatten().collect()
+}
+
+fn instructions_set_flag(flags: Vec<Flag>) -> Vec<Vec<u8>> {
+    assert!(!flags.contains(&Flag::Break));
+
+    let mut initial_status = 0b00100000;
+    for f in flags {
+        initial_status |= 0x1 << (f as u8)
+    }
+
+    vec![
+        LDA::immediate(initial_status), // Set accumulator.
+        PHA::implied(),                       // Push accumulator on stack.
+        PLP::implied(),                       // Pull processor status off stack.
+    ]
+}
+
 pub trait TestAssertions {
     fn assert_flags_set(&self, expected_set: Vec<Flag>);
 }
@@ -37,5 +71,24 @@ impl TestAssertions for Core<TestCartridge> {
             let expectation = expected_flags_set.contains(f);
             assert_eq!(self.registers.get_flag(*f), expectation, "Expectation for {:?} flag failed.", f);
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::common::{test_with_flags, TestAssertions};
+    use nes::processor::registers::Flag;
+
+    #[test]
+    fn test_setup_flags_no_flags() {
+        let t = test_with_flags(vec![], vec![]);
+        t.assert_flags_set(vec![])
+    }
+
+    #[test]
+    fn test_setup_flags() {
+        let v = vec![Flag::Carry, Flag::Overflow];
+        let t = test_with_flags(vec![], v.clone());
+        t.assert_flags_set(v)
     }
 }
