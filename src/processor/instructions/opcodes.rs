@@ -5,7 +5,13 @@ pub trait Immediate {
     }
 }
 
-pub trait ZeroPage { const ZEROPAGE: u8; }
+pub trait ZeroPage {
+    const ZEROPAGE: u8;
+    fn zero_page(value: u8) -> Vec<u8> {
+        vec![Self::ZEROPAGE, value]
+    }
+}
+
 pub trait ZeroPageX { const ZEROPAGEX: u8; }
 pub trait ZeroPageY { const ZEROPAGEY: u8; }
 pub trait Absolute { const ABSOLUTE: u8; }

@@ -123,7 +123,7 @@ fn test_cmp_1() {
     test(vec![
         LDA::immediate(0xau8),
         CMP::immediate(0xbu8)
-    ]).assert_flags_set(vec![Negative])
+    ]).assert_flags_set(vec![Negative]);
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn test_cmp_2() {
     test(vec![
         LDA::immediate(0xbu8),
         CMP::immediate(0xau8)
-    ]).assert_flags_set(vec![Carry])
+    ]).assert_flags_set(vec![Carry]);
 }
 
 #[test]
@@ -139,7 +139,7 @@ fn test_cmp_3() {
     test(vec![
         LDA::immediate(0xbu8),
         CMP::immediate(0xbu8)
-    ]).assert_flags_set(vec![Carry, Zero])
+    ]).assert_flags_set(vec![Carry, Zero]);
 }
 
 #[test]

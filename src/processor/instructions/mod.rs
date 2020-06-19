@@ -19,9 +19,8 @@ mod system;
 
 impl<C : Cartridge> Core<C> {
     fn check_value_set_zero(&mut self, v: u8) {
-        if v == 0u8 {
-            self.registers.set_flag(Flag::Zero);
-        };
+        let is_zero = v == 0u8;
+        self.registers.set_flag_to(Flag::Zero, is_zero);
     }
 
     fn check_value_set_negative(&mut self, v: u8) {

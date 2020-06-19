@@ -62,15 +62,34 @@ fn instructions_set_flag(flags: Vec<Flag>) -> Vec<Vec<u8>> {
 }
 
 pub trait TestAssertions {
-    fn assert_flags_set(&self, expected_set: Vec<Flag>);
+    fn assert_flags_set(&self, expected_set: Vec<Flag>) -> &Self;
+    fn assert_x(&self, expected: i8) -> &Self;
+    fn assert_y(&self, expected: i8) -> &Self;
+    fn assert_accumulator(&self, expected: i8) -> &Self;
 }
 
 impl TestAssertions for Core<TestCartridge> {
-    fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) {
+    fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) -> &Self {
         [Carry, Zero, Interrupt, Decimal, Overflow, Negative].iter().for_each(|f| {
             let expectation = expected_flags_set.contains(f);
             assert_eq!(self.registers.get_flag(*f), expectation, "Expectation for {:?} flag failed.", f);
         });
+        self
+    }
+
+    fn assert_x(&self, expected: i8) -> &Self {
+        assert_eq!(self.registers.x as i8, expected);
+        self
+    }
+
+    fn assert_y(&self, expected: i8) -> &Self {
+        assert_eq!(self.registers.y as i8, expected);
+        self
+    }
+
+    fn assert_accumulator(&self, expected: i8) -> &Self {
+        assert_eq!(self.registers.accumulator as i8, expected);
+        self
     }
 }
 
@@ -82,13 +101,13 @@ mod tests {
     #[test]
     fn test_setup_flags_no_flags() {
         let t = test_with_flags(vec![], vec![]);
-        t.assert_flags_set(vec![])
+        t.assert_flags_set(vec![]);
     }
 
     #[test]
     fn test_setup_flags() {
         let v = vec![Flag::Carry, Flag::Overflow];
         let t = test_with_flags(vec![], v.clone());
-        t.assert_flags_set(v)
+        t.assert_flags_set(v);
     }
 }
