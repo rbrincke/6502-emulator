@@ -62,34 +62,30 @@ fn instructions_set_flag(flags: Vec<Flag>) -> Vec<Vec<u8>> {
 }
 
 pub trait TestAssertions {
-    fn assert_flags_set(&self, expected_set: Vec<Flag>) -> &Self;
-    fn assert_x(&self, expected: i8) -> &Self;
-    fn assert_y(&self, expected: i8) -> &Self;
-    fn assert_accumulator(&self, expected: i8) -> &Self;
+    fn assert_flags_set(&self, expected_set: Vec<Flag>);
+    fn assert_x(&self, expected: i8);
+    fn assert_y(&self, expected: i8);
+    fn assert_accumulator(&self, expected: i8);
 }
 
 impl TestAssertions for Core<TestCartridge> {
-    fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) -> &Self {
+    fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) {
         [Carry, Zero, Interrupt, Decimal, Overflow, Negative].iter().for_each(|f| {
             let expectation = expected_flags_set.contains(f);
             assert_eq!(self.registers.get_flag(*f), expectation, "Expectation for {:?} flag failed.", f);
         });
-        self
     }
 
-    fn assert_x(&self, expected: i8) -> &Self {
-        assert_eq!(self.registers.x as i8, expected);
-        self
+    fn assert_x(&self, expected: i8) {
+        assert_eq!(self.registers.x as i8, expected)
     }
 
-    fn assert_y(&self, expected: i8) -> &Self {
-        assert_eq!(self.registers.y as i8, expected);
-        self
+    fn assert_y(&self, expected: i8) {
+        assert_eq!(self.registers.y as i8, expected)
     }
 
-    fn assert_accumulator(&self, expected: i8) -> &Self {
-        assert_eq!(self.registers.accumulator as i8, expected);
-        self
+    fn assert_accumulator(&self, expected: i8) {
+        assert_eq!(self.registers.accumulator as i8, expected)
     }
 }
 

@@ -113,19 +113,19 @@ fn test_dec_overflow() {
 }
 
 fn test_x<T: Implied>(x_register_init: i8, expected: i8, expected_flags: Vec<Flag>) {
-    test(vec![LDX::immediate(x_register_init as u8), T::implied()])
-        .assert_x(expected)
-        .assert_flags_set(expected_flags);
+    let t = test(vec![LDX::immediate(x_register_init as u8), T::implied()]);
+    t.assert_x(expected);
+    t.assert_flags_set(expected_flags);
 }
 
 fn test_y<T: Implied>(y_register_init: i8, expected: i8, expected_flags: Vec<Flag>) {
-    test(vec![LDY::immediate(y_register_init as u8), T::implied()])
-        .assert_y(expected)
-        .assert_flags_set(expected_flags);
+    let t = test(vec![LDY::immediate(y_register_init as u8), T::implied()]);
+    t.assert_y(expected);
+    t.assert_flags_set(expected_flags);
 }
 
 fn test_other<T: ZeroPage>(init: i8, expected: i8, expected_flags: Vec<Flag>) {
-    test(vec![LDA::immediate(init as u8), STA::zero_page(0u8), T::zero_page(0u8), LDA::zero_page(0u8)])
-        .assert_accumulator(expected)
-        .assert_flags_set(expected_flags);
+    let t = test(vec![LDA::immediate(init as u8), STA::zero_page(0u8), T::zero_page(0u8), LDA::zero_page(0u8)]);
+    t.assert_accumulator(expected);
+    t.assert_flags_set(expected_flags);
 }
