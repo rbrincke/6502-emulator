@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 pub trait Immediate {
     const IMMEDIATE: u8;
     fn immediate(value: u8) -> Vec<u8> {
