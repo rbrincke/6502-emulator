@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 pub trait Immediate {
     const IMMEDIATE: u8;
     fn immediate(value: u8) -> Vec<u8> {
@@ -14,13 +12,64 @@ pub trait ZeroPage {
     }
 }
 
-pub trait ZeroPageX { const ZEROPAGEX: u8; }
-pub trait ZeroPageY { const ZEROPAGEY: u8; }
-pub trait Absolute { const ABSOLUTE: u8; }
-pub trait AbsoluteX { const ABSOLUTEX: u8; }
-pub trait AbsoluteY { const ABSOLUTEY: u8; }
-pub trait IndexedIndirect { const INDEXEDINDIRECT: u8; }
-pub trait IndirectIndexed { const INDIRECTINDEXED: u8; }
+pub trait ZeroPageX {
+    const ZEROPAGEX: u8;
+    fn zero_page_x(value: u8) -> Vec<u8> {
+        vec![Self::ZEROPAGEX, value]
+    }
+}
+
+pub trait ZeroPageY {
+    const ZEROPAGEY: u8;
+    fn zero_page_y(value: u8) -> Vec<u8> {
+        vec![Self::ZEROPAGEY, value]
+    }
+}
+
+fn split(value: u16) -> (u8, u8) {
+    let first = (value & 0xFF00) << 8;
+    let second = value & 0x00FF;
+    (first as u8, second as u8)
+}
+
+pub trait Absolute {
+    const ABSOLUTE: u8;
+    fn absolute(value: u16) -> Vec<u8> {
+        let (first, second) = split(value);
+        vec![Self::ABSOLUTE, first, second]
+    }
+}
+
+pub trait AbsoluteX {
+    const ABSOLUTEX: u8;
+    fn absolute_x(value: u16) -> Vec<u8> {
+        let (first, second) = split(value);
+        vec![Self::ABSOLUTEX, first, second]
+    }
+}
+
+pub trait AbsoluteY {
+    const ABSOLUTEY: u8;
+    fn absolute_y(value: u16) -> Vec<u8> {
+        let (first, second) = split(value);
+        vec![Self::ABSOLUTEY, first, second]
+    }
+}
+
+pub trait IndexedIndirect {
+    const INDEXEDINDIRECT: u8;
+    fn indexed_indirect(value: u8) -> Vec<u8> {
+        vec![Self::INDEXEDINDIRECT, value]
+    }
+}
+
+pub trait IndirectIndexed {
+    const INDIRECTINDEXED: u8;
+    fn indirect_indexed(value: u8) -> Vec<u8> {
+        vec![Self::INDIRECTINDEXED, value]
+    }
+}
+
 pub trait Relative {
     const RELATIVE: u8;
     fn relative(displacement: u8) -> Vec<u8> {
@@ -42,7 +91,13 @@ pub trait Implied {
     }
 }
 
-pub trait Indirect { const INDIRECT: u8; }
+pub trait Indirect {
+    const INDIRECT: u8;
+    fn indirect(value: u16) -> Vec<u8> {
+        let (first, second) = split(value);
+        vec![Self::INDIRECT, first, second]
+    }
+}
 
 pub struct ADC;
 impl Immediate for ADC { const IMMEDIATE: u8 = 0x69u8; }
