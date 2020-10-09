@@ -14,20 +14,17 @@ impl<C : Cartridge> Core<C> {
 
     /// Load accumulator.
     pub(crate) fn lda(&mut self, address_mode: AddressMode) {
-        let v = self.ld_set_flags(address_mode);
-        self.registers.accumulator = v
+        self.registers.accumulator = self.ld_set_flags(address_mode);
     }
 
     /// Load X.
     pub(crate) fn ldx(&mut self, address_mode: AddressMode) {
-        let v = self.ld_set_flags(address_mode);
-        self.registers.x = v
+        self.registers.x = self.ld_set_flags(address_mode);
     }
 
     /// Load Y.
     pub(crate) fn ldy(&mut self, address_mode: AddressMode) {
-        let v = self.ld_set_flags(address_mode);
-        self.registers.y = v
+        self.registers.y = self.ld_set_flags(address_mode);
     }
 
     fn st(&mut self, address_mode: AddressMode, value: u8) {
