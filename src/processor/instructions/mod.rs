@@ -28,6 +28,11 @@ impl<C : Cartridge> Core<C> {
         self.registers.set_flag_to(Flag::Negative, is_negative);
     }
 
+    fn check_value_set_zero_negative(&mut self, v: u8) {
+        self.check_value_set_zero(v);
+        self.check_value_set_negative(v);
+    }
+
     fn check_value_set_carry(&mut self, v: u16) {
         let is_carry = v > 0xFF;
         self.registers.set_flag_to(Flag::Carry, is_carry);

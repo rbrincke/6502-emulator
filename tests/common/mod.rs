@@ -1,8 +1,9 @@
-use crate::common::cartridge::TestCartridge;
-use nes::processor::registers::Flag;
 use nes::processor::Core;
-use nes::processor::registers::Flag::{Zero, Carry, Interrupt, Decimal, Overflow, Negative};
-use nes::processor::instructions::opcodes::{Implied, Accumulator, Immediate, LDA, PHA, PLP, BRK};
+use nes::processor::instructions::opcodes::{Accumulator, BRK, Immediate, Implied, LDA, PHA, PLP};
+use nes::processor::registers::Flag;
+use nes::processor::registers::Flag::{Carry, Decimal, Interrupt, Negative, Overflow, Zero};
+
+use crate::common::cartridge::TestCartridge;
 
 mod cartridge;
 

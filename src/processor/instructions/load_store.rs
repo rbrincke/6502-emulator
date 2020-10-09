@@ -7,8 +7,7 @@ impl<C : Cartridge> Core<C> {
         let address = self.address(address_mode);
         let value = self.read(address);
 
-        self.check_value_set_zero(value);
-        self.check_value_set_negative(value);
+        self.check_value_set_zero_negative(value);
 
         value
     }

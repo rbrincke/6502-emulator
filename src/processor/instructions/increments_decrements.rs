@@ -3,53 +3,43 @@ use crate::cartridge::Cartridge;
 use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
-    fn inc_dec<F : Fn(u8) -> u8>(&mut self, address_mode: AddressMode, f: F) {
+    fn inc_dec<F : Fn(u8, u8) -> u8>(&mut self, address_mode: AddressMode, apply: F) {
         let address = self.address(address_mode);
-        let result = f(self.read(address));
+        let result = apply(self.read(address), 1);
 
-        self.check_value_set_zero(result);
-        self.check_value_set_negative(result);
-
+        self.check_value_set_zero_negative(result);
         self.write(address, result)
     }
 
     /// Increment.
     pub(crate) fn inc(&mut self, address_mode: AddressMode) {
-        self.inc_dec(address_mode, |v| v.wrapping_add(1))
+        self.inc_dec(address_mode, u8::wrapping_add)
+    }
+
+    /// Decrement.
+    pub(crate) fn dec(&mut self, address_mode: AddressMode) {
+        self.inc_dec(address_mode, u8::wrapping_sub)
     }
 
     /// Increment X.
     pub(crate) fn inx(&mut self) {
         self.registers.x = self.registers.x.wrapping_add(1);
-
-        self.check_value_set_zero(self.registers.x);
-        self.check_value_set_negative(self.registers.x);
+        self.check_value_set_zero_negative(self.registers.x);
     }
 
     /// Increment Y.
     pub(crate) fn iny(&mut self) {
         self.registers.y = self.registers.y.wrapping_add(1);
-
-        self.check_value_set_zero(self.registers.y);
-        self.check_value_set_negative(self.registers.y);
-    }
-
-    /// Decrement.
-    pub(crate) fn dec(&mut self, address_mode: AddressMode) {
-        self.inc_dec(address_mode, |v| v.wrapping_sub(1))
+        self.check_value_set_zero_negative(self.registers.y);
     }
 
     pub(crate) fn dex(&mut self) {
         self.registers.x = self.registers.x.wrapping_sub(1);
-
-        self.check_value_set_zero(self.registers.x);
-        self.check_value_set_negative(self.registers.x);
+        self.check_value_set_zero_negative(self.registers.x);
     }
 
     pub(crate) fn dey(&mut self) {
         self.registers.y = self.registers.y.wrapping_sub(1);
-
-        self.check_value_set_zero(self.registers.y);
-        self.check_value_set_negative(self.registers.y);
+        self.check_value_set_zero_negative(self.registers.y);
     }
 }

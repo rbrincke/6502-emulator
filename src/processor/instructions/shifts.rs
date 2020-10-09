@@ -22,20 +22,19 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_carry(result_intermediate);
         let result = (result_intermediate & 0xFF) as u8;
 
-        self.check_value_set_zero(result);
-        self.check_value_set_negative(result);
+        self.check_value_set_zero_negative(result);
 
         result
     }
 
     /// Arithmetic shift left on accumulator.
     pub(crate) fn asl_acc(&mut self) {
-        self.shift_accumulator(|r, v| r.asl(v));
+        self.shift_accumulator(Core::asl);
     }
 
     /// Arithmetic shift left.
     pub(crate) fn asl_mem(&mut self, address_mode: AddressMode) {
-        self.shift_address(address_mode, |r, v| r.asl(v));
+        self.shift_address(address_mode, Core::asl);
     }
 
     fn lsr(&mut self, value: u8) -> u8 {
@@ -43,20 +42,19 @@ impl<C : Cartridge> Core<C> {
         let result = value >> 1;
         self.registers.set_flag_to(Flag::Carry, new_carry_flag_value);
 
-        self.check_value_set_zero(result);
-        self.check_value_set_negative(result);
+        self.check_value_set_zero_negative(result);
 
         result
     }
 
     /// Logical shift right on accumulator.
     pub(crate) fn lsr_acc(&mut self) {
-        self.shift_accumulator(|r, v| r.lsr(v));
+        self.shift_accumulator(Core::lsr);
     }
 
     /// Logical shift right.
     pub(crate) fn lsr_mem(&mut self, address_mode: AddressMode) {
-        self.shift_address(address_mode, |r, v| r.lsr(v));
+        self.shift_address(address_mode, Core::lsr);
     }
 
     fn rol(&mut self, value: u8) -> u8 {
@@ -64,20 +62,19 @@ impl<C : Cartridge> Core<C> {
         let result = value << 1 | self.registers.get_flag(Flag::Carry) as u8;
         self.registers.set_flag_to(Flag::Carry, new_carry_flag_value);
 
-        self.check_value_set_zero(result);
-        self.check_value_set_negative(result);
+        self.check_value_set_zero_negative(result);
 
         result
     }
 
     /// Rotate left on accumulator.
     pub(crate) fn rol_acc(&mut self) {
-        self.shift_accumulator(|r, v| r.rol(v));
+        self.shift_accumulator(Core::rol);
     }
 
     /// Rotate left.
     pub(crate) fn rol_mem(&mut self, address_mode: AddressMode) {
-        self.shift_address(address_mode, |r, v| r.rol(v));
+        self.shift_address(address_mode, Core::rol);
     }
 
     fn ror(&mut self, value: u8) -> u8 {
@@ -85,19 +82,18 @@ impl<C : Cartridge> Core<C> {
         let result = value >> 1 | (self.registers.get_flag(Flag::Carry) as u8) << 7;
         self.registers.set_flag_to(Flag::Carry, new_carry_flag_value);
 
-        self.check_value_set_zero(result);
-        self.check_value_set_negative(result);
+        self.check_value_set_zero_negative(result);
 
         result
     }
 
     /// Rotate right on accumulator.
     pub(crate) fn ror_acc(&mut self) {
-        self.shift_accumulator(|r, v| r.ror(v));
+        self.shift_accumulator(Core::ror);
     }
 
     /// Rotate right.
     pub(crate) fn ror_mem(&mut self, address_mode: AddressMode) {
-        self.shift_address(address_mode, |r, v| r.ror(v));
+        self.shift_address(address_mode, Core::ror);
     }
 }
