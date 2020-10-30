@@ -39,8 +39,9 @@ impl<C: Cartridge> Core<C> {
     // In immediate mode the value is embedded in the instruction
     // itself, so read the incremented program counter.
     pub(crate) fn address_immediate(&mut self) -> u16 {
+        let v = self.registers.program_counter;
         self.registers.program_counter += 1;
-        self.registers.program_counter
+        v
     }
 
     pub(crate) fn address_relative(&mut self) -> u16 {

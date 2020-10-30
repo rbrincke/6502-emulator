@@ -74,7 +74,7 @@ fn test_branching<T : Relative>(setup_flag: Option<Flag>, expected_branch: bool)
 
     let core = test_with_flags(vec![
         CLI::implied(),                 // Set InterruptDisable.
-        T::relative(1),                      // Execute branch.
+        T::relative(1),     // Execute branch.
         SEI::implied(),                 // If branch, should not happen.
         LDA::immediate(10)        // Skip to here.
     ], flags);

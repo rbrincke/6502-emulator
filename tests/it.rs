@@ -12,7 +12,7 @@ use nes::processor::registers::Flag;
 #[ignore]
 #[test]
 fn it() {
-    let mut program = include_bytes!("6502_functional_test.bin").to_vec();
+    let mut program = include_bytes!("it.bin").to_vec();
 
     let one = program.get(0xFFFC).unwrap();
     let two = program.get(0xFFFD).unwrap();

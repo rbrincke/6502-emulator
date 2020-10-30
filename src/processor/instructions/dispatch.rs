@@ -159,10 +159,7 @@ impl<C : Cartridge> Core<C> {
             TXA::IMPLIED => self.txa(),
             TXS::IMPLIED => self.txs(),
             TYA::IMPLIED => self.tya(),
-            _ => {
-                println!("Unknown instruction {:x}", instruction);
-                self.nop()
-            }
+            _ => panic!("Unknown instruction {:x}", instruction)
         }
     }
 }

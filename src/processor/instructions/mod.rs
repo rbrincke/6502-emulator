@@ -11,7 +11,7 @@ mod increments_decrements;
 mod jumps_calls;
 mod load_store;
 mod logical;
-mod register;
+mod registers;
 pub mod opcodes;
 mod shifts;
 mod stack;
