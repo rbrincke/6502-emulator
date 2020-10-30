@@ -29,12 +29,10 @@ impl<C: Cartridge> Core<C> {
     }
 
     fn address_zero_page_offset_x(&mut self) -> u16 {
-        self.tick();
         self.address_zero_page_offset(self.registers.x)
     }
 
     fn address_zero_page_offset_y(&mut self) -> u16 {
-        self.tick();
         self.address_zero_page_offset(self.registers.y)
     }
 

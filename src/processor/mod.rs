@@ -34,9 +34,4 @@ impl<C : Cartridge> Core<C> {
         self.execute(instruction);
         self.registers.program_counter += 1;
     }
-
-    /// Increment cycle.
-    pub(crate) fn tick(&mut self) {
-        self.tick += 1;
-    }
 }

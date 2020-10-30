@@ -49,10 +49,3 @@ impl<C : Cartridge> Core<C> {
         self.registers.set_flag_to(Flag::Overflow, is_overflow);
     }
 }
-
-fn is_page_crossed(addr: u16, incr: u16) -> bool {
-    // In the address 0xPPpp the PP constitutes the page. If after adding 'incr' to 'addr'
-    // the pages are different, a page has been crossed.
-    let total = addr + incr;
-    return (total >> 8) != (addr >> 8);
-}

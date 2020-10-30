@@ -9,6 +9,7 @@ use common::test;
 use common::cartridge::TestCartridge;
 use nes::processor::registers::Flag;
 
+#[ignore]
 #[test]
 fn it() {
     let mut program = include_bytes!("6502_functional_test.bin").to_vec();
