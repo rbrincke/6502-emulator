@@ -5,7 +5,7 @@ use nes::processor::registers::Flag::{Carry, Decimal, Interrupt, Negative, Overf
 
 use crate::common::cartridge::TestCartridge;
 
-mod cartridge;
+pub mod cartridge;
 
 /// Run a series of instructions and then return the machine state.
 ///
@@ -33,7 +33,7 @@ pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<Tes
     program.extend(BRK::implied());
 
     let mut core = Core::new(
-        TestCartridge::new(program)
+        TestCartridge::partial(program)
     );
 
     while !core.registers.get_flag(Flag::Break) {

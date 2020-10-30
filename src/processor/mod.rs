@@ -8,7 +8,6 @@ pub mod instructions;
 
 pub struct Core<C : Cartridge> {
     pub registers: Registers,
-    memory: [u8; 0x8000],
     cartridge: C,
     tick: u32
 }
@@ -17,7 +16,6 @@ impl<C : Cartridge> Core<C> {
     pub fn new(cartridge: C) -> Core<C> {
         let mut core = Core {
             registers: Registers::new(),
-            memory: [0; 0x8000],
             cartridge,
             tick: 0
         };
@@ -28,7 +26,7 @@ impl<C : Cartridge> Core<C> {
 
     fn reset(&mut self) {
         // Initialize the program counter from the predefined memory locations.
-        self.registers.program_counter = self.read_two(0xFFFc, 0xFFFd);
+        self.registers.program_counter = self.read_two(0xFFFC, 0xFFFD);
     }
 
     pub fn execute_next(&mut self) {

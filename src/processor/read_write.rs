@@ -11,16 +11,14 @@ impl<C : Cartridge> Core<C> {
         self.tick();
 
         match address {
-            0x0000..=0x4016 => self.memory[address as usize],
-            0x4018..=0xFFFF => self.cartridge.read(address),
+            0x0000..=0xFFFF => self.cartridge.read(address),
             _ => panic!("Attempt to read unmapped address {}", address)
         }
     }
 
     pub(crate) fn write(&mut self, address: u16, value: u8) {
         match address {
-            0x0000..=0x4016 => self.memory[address as usize] = value,
-            0x4018..=0xFFFF => self.cartridge.write(address, value),
+            0x0000..=0xFFFF => self.cartridge.write(address, value),
             _ => panic!("Attempt to read unmapped address {}", address)
         }
     }
