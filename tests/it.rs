@@ -7,7 +7,7 @@ use std::io::Read;
 use nes::processor::Core;
 use common::test;
 use nes::processor::registers::Flag;
-use nes::cartridge::TestCartridge;
+use nes::cartridge::basic::BasicCartridge;
 
 #[test]
 fn it() {
@@ -16,10 +16,9 @@ fn it() {
     let one = program.get(0xFFFC).unwrap();
     let two = program.get(0xFFFD).unwrap();
 
-    println!("{:#02x} {:#02x}", one, two);
-
-    let mut cartridge = TestCartridge::new(program, 0);
-    cartridge.set_pc(0x400);
+    let mut cartridge = BasicCartridge::empty();
+    cartridge.load(program, 0);
+    cartridge.set_program_counter(0x400);
 
     let mut core = Core::new(
         cartridge

@@ -15,7 +15,6 @@ impl<C : Cartridge> Core<C> {
 
     /// Clear interrupt.
     pub(crate) fn cli(&mut self) {
-        println!("cli");
         self.registers.clear_flag(Flag::Interrupt);
     }
 
@@ -36,7 +35,6 @@ impl<C : Cartridge> Core<C> {
 
     /// Set interrupt.
     pub(crate) fn sei(&mut self) {
-        println!("sei");
         self.registers.set_flag(Flag::Interrupt);
     }
 }

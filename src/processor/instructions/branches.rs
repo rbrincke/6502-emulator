@@ -21,7 +21,6 @@ impl<C : Cartridge> Core<C> {
 
     /// Branch if equal.
     pub(crate) fn beq(&mut self) {
-        println!("beq");
         self.branch(Flag::Zero, true);
     }
 

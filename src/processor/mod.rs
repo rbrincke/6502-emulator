@@ -29,7 +29,6 @@ impl<C : Cartridge> Core<C> {
 
     pub fn execute_next(&mut self) {
         let instruction = self.read(self.registers.program_counter);
-        println!("I {}", instruction);
         self.registers.program_counter += 1;
         self.execute(instruction);
     }

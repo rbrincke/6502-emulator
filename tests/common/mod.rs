@@ -3,7 +3,7 @@ use nes::processor::instructions::opcodes::{Accumulator, BRK, Immediate, Implied
 use nes::processor::registers::Flag;
 use nes::processor::registers::Flag::{Carry, Decimal, Interrupt, Negative, Overflow, Zero};
 
-use nes::cartridge::TestCartridge;
+use nes::cartridge::basic::BasicCartridge;
 
 const PROGRAM_START: usize = 0x8000;
 
@@ -12,7 +12,7 @@ const PROGRAM_START: usize = 0x8000;
 /// LDA, PHA and PLP instructions are prepended to it. A single BRK instruction is
 /// added at the end of the Vec of instructions. Instructions are executed until the
 /// BRK flag is set.
-pub fn test(instructions: Vec<Vec<u8>>) -> Core<TestCartridge> {
+pub fn test(instructions: Vec<Vec<u8>>) -> Core<BasicCartridge> {
     test_with_flags(instructions, vec![])
 }
 
@@ -22,7 +22,7 @@ pub fn test(instructions: Vec<Vec<u8>>) -> Core<TestCartridge> {
 /// LDA, PHA and PLP instructions are prepended to it. A single BRK instruction is
 /// added at the end of the Vec of instructions. Instructions are executed until the
 /// BRK flag is set.
-pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<TestCartridge> {
+pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<BasicCartridge> {
     // Add flag initialization.
     let mut program = flatten(instructions_set_flag(flags));
 
@@ -32,8 +32,9 @@ pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<Tes
     // Add BRK;
     program.extend(BRK::implied());
 
-    let mut cartridge = TestCartridge::new(program, PROGRAM_START);
-    cartridge.set_pc(PROGRAM_START as u16);
+    let mut cartridge = BasicCartridge::empty();
+    cartridge.load(program, PROGRAM_START);
+    cartridge.set_program_counter(PROGRAM_START as u16);
 
     let mut core = Core::new(
         cartridge
@@ -72,7 +73,7 @@ pub trait TestAssertions {
     fn assert_accumulator(&self, expected: i8);
 }
 
-impl TestAssertions for Core<TestCartridge> {
+impl TestAssertions for Core<BasicCartridge> {
     fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) {
         [Carry, Zero, Interrupt, Decimal, Overflow, Negative].iter().for_each(|f| {
             let expectation = expected_flags_set.contains(f);
