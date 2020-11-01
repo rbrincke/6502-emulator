@@ -46,12 +46,7 @@ impl<C: Cartridge> Core<C> {
 
     pub(crate) fn address_relative(&mut self) -> u16 {
         let immediate_address = self.address_immediate();
-        let value = self.read(immediate_address) as i8;
-        if value < 0 {
-            -value as u16
-        } else {
-            value as u16
-        }
+        self.read(immediate_address) as i8 as u16
     }
 
     /// Full 16-bit address.

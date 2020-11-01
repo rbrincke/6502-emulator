@@ -4,7 +4,9 @@ use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
     /// No operation.
-    pub(crate) fn nop(&self) {}
+    pub(crate) fn nop(&self) {
+        println!("nop");
+    }
 
     /// Force interrupt.
     pub(crate) fn brk(&mut self) {

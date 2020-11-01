@@ -34,6 +34,7 @@ impl<C : Cartridge> Core<C> {
     }
 
     pub(crate) fn dex(&mut self) {
+        println!("dex");
         self.registers.x = self.registers.x.wrapping_sub(1);
         self.check_value_set_zero_negative(self.registers.x);
     }

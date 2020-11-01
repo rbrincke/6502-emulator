@@ -3,9 +3,9 @@ use nes::processor::instructions::opcodes::{Accumulator, BRK, Immediate, Implied
 use nes::processor::registers::Flag;
 use nes::processor::registers::Flag::{Carry, Decimal, Interrupt, Negative, Overflow, Zero};
 
-use crate::common::cartridge::TestCartridge;
+use nes::cartridge::TestCartridge;
 
-pub mod cartridge;
+const PROGRAM_START: usize = 0x8000;
 
 /// Run a series of instructions and then return the machine state.
 ///
@@ -32,8 +32,11 @@ pub fn test_with_flags(instructions: Vec<Vec<u8>>, flags: Vec<Flag>) -> Core<Tes
     // Add BRK;
     program.extend(BRK::implied());
 
+    let mut cartridge = TestCartridge::new(program, PROGRAM_START);
+    cartridge.set_pc(PROGRAM_START as u16);
+
     let mut core = Core::new(
-        TestCartridge::partial(program)
+        cartridge
     );
 
     while !core.registers.get_flag(Flag::Break) {

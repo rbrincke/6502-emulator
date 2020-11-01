@@ -11,65 +11,65 @@ use nes::processor::Core;
 
 #[test]
 fn test_bcc_clear() {
-    test_branching::<BCC>(None, true)
+    test_branch_forwards::<BCC>(None, true)
 }
 
 #[test]
 fn test_bcc_set() {
-    test_branching::<BCC>(Some(Flag::Carry), false)
+    test_branch_forwards::<BCC>(Some(Flag::Carry), false)
 }
 
 #[test]
 fn bcs_set() {
-    test_branching::<BCS>(Some(Flag::Carry), true)
+    test_branch_forwards::<BCS>(Some(Flag::Carry), true)
 }
 
 #[test]
 fn bcs_clear() {
-    test_branching::<BCS>(None, false)
+    test_branch_forwards::<BCS>(None, false)
 }
 
 #[test]
 fn beq_eq() {
-    test_branching::<BEQ>(Some(Flag::Zero), true)
+    test_branch_forwards::<BEQ>(Some(Flag::Zero), true)
 }
 
 #[test]
 fn beq_ne() {
-    test_branching::<BEQ>(None, false)
+    test_branch_forwards::<BEQ>(None, false)
 }
 
 #[test]
 fn bvc_clear() {
-    test_branching::<BVC>(None, true)
+    test_branch_forwards::<BVC>(None, true)
 }
 
 #[test]
 fn bvc_set() {
-    test_branching::<BVC>(Some(Flag::Overflow), false)
+    test_branch_forwards::<BVC>(Some(Flag::Overflow), false)
 }
 
 #[test]
 fn bvs_set() {
-    test_branching::<BVS>(Some(Flag::Overflow), true)
+    test_branch_forwards::<BVS>(Some(Flag::Overflow), true)
 }
 
 #[test]
 fn bvs_clear() {
-    test_branching::<BVS>(None, false)
+    test_branch_forwards::<BVS>(None, false)
 }
 
 #[test]
 fn bpl_pos() {
-    test_branching::<BPL>(None, true)
+    test_branch_forwards::<BPL>(None, true)
 }
 
 #[test]
 fn bpl_neg() {
-    test_branching::<BPL>(Some(Flag::Negative), false)
+    test_branch_forwards::<BPL>(Some(Flag::Negative), false)
 }
 
-fn test_branching<T : Relative>(setup_flag: Option<Flag>, expected_branch: bool) {
+fn test_branch_forwards<T : Relative>(setup_flag: Option<Flag>, expected_branch: bool) {
     let flags: Vec<Flag> = setup_flag.into_iter().collect();
 
     let core = test_with_flags(vec![

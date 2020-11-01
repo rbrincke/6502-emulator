@@ -6,7 +6,7 @@ impl<C : Cartridge> Core<C> {
     fn branch(&mut self, flag: Flag, branch_if: bool) {
         let displacement = self.address_relative();
         if self.registers.get_flag(flag) == branch_if {
-            self.registers.program_counter += displacement;
+            self.registers.program_counter = self.registers.program_counter.wrapping_add(displacement)
         }
     }
 
@@ -21,6 +21,7 @@ impl<C : Cartridge> Core<C> {
 
     /// Branch if equal.
     pub(crate) fn beq(&mut self) {
+        println!("beq");
         self.branch(Flag::Zero, true);
     }
 
