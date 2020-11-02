@@ -1,5 +1,6 @@
 use crate::cartridge::Cartridge;
 use crate::processor::Core;
+use crate::processor::registers::{Flag, Registers};
 
 impl<C : Cartridge> Core<C> {
     /// Transfer X to Stack Pointer.
@@ -32,15 +33,17 @@ impl<C : Cartridge> Core<C> {
 
     /// Push processor status.
     pub(crate) fn php(&mut self) {
+        self.registers.set_flag(Flag::Break);
         self.push(self.registers.status)
     }
 
     pub(crate) fn pla(&mut self) {
         self.registers.accumulator = self.pop();
+        self.check_value_set_zero_negative(self.registers.accumulator);
     }
 
     /// Pull processor status.
     pub(crate) fn plp(&mut self) {
-        self.registers.status = self.pop();
+        self.registers.status = self.pop() | Registers::DEFAULT_STATUS
     }
 }

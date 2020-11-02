@@ -21,6 +21,8 @@ pub struct Registers {
 }
 
 impl Registers {
+    pub(crate) const DEFAULT_STATUS: u8 = 0b00100000;
+
     pub(crate) fn new() -> Registers {
         Registers {
             program_counter: 0,
@@ -28,7 +30,7 @@ impl Registers {
             accumulator: 0,
             x: 0,
             y: 0,
-            status: 0b00100000
+            status: Registers::DEFAULT_STATUS
         }
     }
 
@@ -59,6 +61,12 @@ mod tests {
     use crate::processor::registers::{Registers, Flag};
 
     #[test]
+    fn test_reserved_always_on() {
+        let mut registers = Registers::new();
+        assert_eq!(true, registers.get_flag(Flag::Reserved));
+    }
+
+    #[test]
     fn test_set_get_clear() {
         fn test(flag: Flag) {
             let mut registers = Registers::new();
@@ -69,6 +77,8 @@ mod tests {
 
             registers.clear_flag(flag);
             assert_eq!(false, registers.get_flag(flag));
+
+            assert_eq!(true, registers.get_flag(Flag::Reserved));
         }
 
         test(Flag::Carry);
@@ -90,10 +100,12 @@ mod tests {
         assert_eq!(true, registers.get_flag(Flag::Carry));
         assert_eq!(true, registers.get_flag(Flag::Break));
         assert_eq!(true, registers.get_flag(Flag::Negative));
+        assert_eq!(true, registers.get_flag(Flag::Reserved));
 
         registers.clear_flag(Flag::Carry);
         assert_eq!(false, registers.get_flag(Flag::Carry));
         assert_eq!(true, registers.get_flag(Flag::Break));
         assert_eq!(true, registers.get_flag(Flag::Negative));
+        assert_eq!(true, registers.get_flag(Flag::Reserved));
     }
 }
