@@ -25,7 +25,7 @@ fn it() {
     );
 
     let mut current_pc = 0x0u16;
-    while !core.registers.get_flag(Flag::Break) && current_pc != core.registers.program_counter {
+    while current_pc != core.registers.program_counter {
         current_pc = core.registers.program_counter;
         core.execute_next();
     }
