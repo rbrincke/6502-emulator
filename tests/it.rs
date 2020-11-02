@@ -30,5 +30,5 @@ fn it() {
         core.execute_next();
     }
 
-    println!("IT finished at {}", current_pc);
+    println!("IT finished at {:x}", current_pc);
 }

@@ -101,3 +101,7 @@ Subtraction works much like addition, except digits are borrowed rather than car
 The SBC instruction is a subtract-with-carry, and there is no borrow flag. The inverse of the carry flag is used to borrow, serving as a not-borrow flag. Whenever the carry flag is clear, executing an SBC instruction will lead to a result that is off by 1 because a cleared carry flag indicates a borrow.
 
 Any subtraction can be rewritten as an addition by inverting the subtrahend. For example, `5 - 3` is the same as `5 + (-3)`. This means a subtraction can be rewritten as an addition by taking the Two's Complement of the subtrahend. Taking the Two's Complement is done by inverting all bits, and adding one. Since the carry flag in its role as not-borrow already takes care of adding the 1, SBC is the same as ADC for which the second term's bits are inverted.
+
+## Binary Coded Decimal (BCD)
+
+In binary coded decimal form, bytes represent decimal numbers. The 6502 uses a packed binary decimal in which each two groups of four bytes each represent a number.

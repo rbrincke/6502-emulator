@@ -7,7 +7,23 @@ impl<C : Cartridge> Core<C> {
     fn adc_value(&mut self, value: u8) {
         let carry = self.registers.get_flag(Flag::Carry) as u16;
 
-        let result_intermediate = self.registers.accumulator as u16 + value as u16 + carry;
+        // Split into low and high.
+        let mut result_low = (self.registers.accumulator as u16 & 0x0F) + (value as u16 & 0x0F) + carry;
+        let mut result_high = (self.registers.accumulator as u16 & 0xF0) + (value as u16 & 0xF0);
+
+        // Correct values for BCD.
+        if self.registers.get_flag(Flag::Decimal) {
+            if result_low > 0x09 {
+                result_low += 0x06;
+            }
+
+            if result_high > 0x90 {
+                result_high += 0x60;
+            }
+        }
+
+        let result_intermediate = result_low + result_high;
+
         self.check_value_set_carry(result_intermediate);
         self.check_value_set_overflow(self.registers.accumulator, value, result_intermediate);
 
@@ -27,7 +43,12 @@ impl<C : Cartridge> Core<C> {
     /// Subtract with carry.
     pub(crate) fn sbc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
-        let value = self.read(addr) ^ 0xFF;
+        let mut value = self.read(addr) ^ 0xFF;
+        if self.registers.get_flag(Flag::Decimal) {
+            // Use 9s complement.
+            value -= 0x66;
+        }
+
         self.adc_value(value);
     }
 
