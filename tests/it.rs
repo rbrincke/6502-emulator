@@ -8,6 +8,7 @@ use nes::processor::Core;
 use common::test;
 use nes::processor::registers::Flag;
 use nes::cartridge::basic::BasicCartridge;
+use std::time::{Instant, Duration};
 
 #[test]
 fn it() {
@@ -24,11 +25,17 @@ fn it() {
         cartridge
     );
 
+    let start = Instant::now();
+
     let mut current_pc = 0x0u16;
     while current_pc != core.registers.program_counter {
         current_pc = core.registers.program_counter;
         core.execute_next();
     }
 
-    println!("IT finished at {:x}", current_pc);
+    let duration = Instant::now().duration_since(start);
+
+    println!("Test stopped at {:x} in {:?}", current_pc, duration);
+
+    assert_eq!(0, current_pc)
 }

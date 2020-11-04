@@ -62,17 +62,17 @@ impl<C : Cartridge> Core<C> {
         self.check_value_set_zero_negative(difference);
     }
 
-    /// Compare
+    /// Compare accumulator.
     pub(crate) fn cmp(&mut self, address_mode: AddressMode) {
         self.cmp_value(address_mode, self.registers.accumulator);
     }
 
-    /// Compare X register
+    /// Compare X register.
     pub(crate) fn cpx(&mut self, address_mode: AddressMode) {
         self.cmp_value(address_mode, self.registers.x);
     }
 
-    /// Compare Y register
+    /// Compare Y register.
     pub(crate) fn cpy(&mut self, address_mode: AddressMode) {
         self.cmp_value(address_mode, self.registers.y);
     }

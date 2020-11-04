@@ -12,8 +12,8 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn jsr(&mut self) {
         let next = self.registers.program_counter + 1;
 
-        let pc_least_significant = (next & 0x00FF) as u8;
         let pc_most_significant = ((next & 0xFF00) >> 8) as u8;
+        let pc_least_significant = (next & 0x00FF) as u8;
 
         self.push(pc_most_significant);
         self.push(pc_least_significant);

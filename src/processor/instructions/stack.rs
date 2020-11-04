@@ -17,11 +17,12 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn push(&mut self, value: u8) {
         let address = 0x100 + self.registers.stack_pointer as u16;
         self.write(address, value);
-        self.registers.stack_pointer -= 1;
+        self.registers.stack_pointer = self.registers.stack_pointer.wrapping_sub(1);
     }
 
     pub(crate) fn pop(&mut self) -> u8 {
-        self.registers.stack_pointer += 1;
+        self.registers.stack_pointer = self.registers.stack_pointer.wrapping_add(1);
+
         let address = 0x100 + self.registers.stack_pointer as u16;
         let value = self.read(address);
         value
@@ -33,8 +34,8 @@ impl<C : Cartridge> Core<C> {
 
     /// Push processor status.
     pub(crate) fn php(&mut self) {
-        self.registers.set_flag(Flag::Break);
-        self.push(self.registers.status)
+        // Push status with B on, but do not reflect in registers.
+        self.push(self.registers.status | (1 << Flag::Break as u8))
     }
 
     pub(crate) fn pla(&mut self) {
@@ -44,6 +45,38 @@ impl<C : Cartridge> Core<C> {
 
     /// Pull processor status.
     pub(crate) fn plp(&mut self) {
-        self.registers.status = self.pop() | Registers::DEFAULT_STATUS
+        self.registers.status = self.pop() | Registers::DEFAULT_STATUS;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::processor::Core;
+    use crate::cartridge::basic::BasicCartridge;
+    use crate::processor::registers::Registers;
+
+    fn core() -> Core<BasicCartridge> {
+        Core {
+            registers: Registers::new(),
+            cartridge: BasicCartridge::empty()
+        }
+    }
+
+    #[test]
+    fn test_stack_wrap_positive() {
+        let mut c = core();
+
+        c.registers.stack_pointer = 0xFF;
+        c.pop();
+        assert_eq!(0x00, c.registers.stack_pointer);
+    }
+
+    #[test]
+    fn test_stack_wrap_negative() {
+        let mut c = core();
+
+        c.registers.stack_pointer = 0x00;
+        c.push(0);
+        assert_eq!(0xFF, c.registers.stack_pointer);
     }
 }

@@ -8,15 +8,20 @@ impl<C : Cartridge> Core<C> {
 
     /// Force interrupt.
     pub(crate) fn brk(&mut self) {
-        let most_significant = self.registers.program_counter >> 8;
-        let least_significant = self.registers.program_counter & 0xFF;
+        let new_program_counter = self.registers.program_counter + 1;
+
+        let most_significant = new_program_counter >> 8;
+        let least_significant = new_program_counter & 0xFF;
         self.push(most_significant as u8);
         self.push(least_significant as u8);
 
         self.registers.set_flag(Flag::Break);
         self.php();
+        self.registers.set_flag(Flag::Interrupt);
 
-        self.registers.program_counter = self.read_two(0xFFFe, 0xFFFf);
+        let pc = self.read_two(0xFFFe, 0xFFFf);
+
+        self.registers.program_counter = pc;
     }
 
     // Return from interrupt.
