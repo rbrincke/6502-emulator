@@ -75,7 +75,7 @@ pub trait TestAssertions {
 
 impl TestAssertions for Core<BasicCartridge> {
     fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) {
-        [Carry, Zero, Interrupt, Decimal, Overflow, Negative].iter().for_each(|f| {
+        [Carry, Zero, Decimal, Overflow, Negative].iter().for_each(|f| {
             let expectation = expected_flags_set.contains(f);
             assert_eq!(self.registers.get_flag(*f), expectation, "Expectation for {:?} flag failed.", f);
         });

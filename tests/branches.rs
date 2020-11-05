@@ -73,12 +73,12 @@ fn test_branch_forwards<T : Relative>(setup_flag: Option<Flag>, expected_branch:
     let flags: Vec<Flag> = setup_flag.into_iter().collect();
 
     let core = test_with_flags(vec![
-        CLI::implied(),                 // Set InterruptDisable.
+        CLD::implied(),                 // Set InterruptDisable.
         T::relative(1),     // Execute branch.
-        SEI::implied(),                 // If branch, should not happen.
+        SED::implied(),                 // If branch, should not happen.
         LDA::immediate(10)        // Skip to here.
     ], flags);
 
     assert_eq!(core.registers.accumulator, 10);
-    assert_eq!(core.registers.get_flag(Flag::Interrupt), !expected_branch, "Branch expectation failed.");
+    assert_eq!(core.registers.get_flag(Flag::Decimal), !expected_branch, "Branch expectation failed.");
 }

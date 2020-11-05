@@ -51,35 +51,36 @@ impl<C: Cartridge> Core<C> {
 
     /// Full 16-bit address.
     pub(crate) fn address_absolute(&mut self) -> u16 {
-        let first = self.address_immediate();
-        let second = self.address_immediate();
-        self.read_two(first, second)
+        let least = self.address_immediate();
+        let most = self.address_immediate();
+        self.read_two(least, most)
     }
 
     fn address_absolute_x(&mut self) -> u16 {
-        self.address_absolute().wrapping_add(self.registers.x as i8 as u16)
+        self.address_absolute() + self.registers.x as u16
     }
 
     fn address_absolute_y(&mut self) -> u16 {
-        self.address_absolute().wrapping_add(self.registers.y as i8 as u16)
+        self.address_absolute() + self.registers.y as u16
     }
 
     /// Indirection.
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
-        self.read_two(least_significant, least_significant + 1)
+        // Actually a bug in the original 6502.
+        self.read_two(least_significant, (least_significant & 0xFF00) | ((least_significant + 1) % 0x100))
     }
 
     fn address_indexed_indirect(&mut self) -> u16 {
         let least_significant = self.address_zero_page_offset_x();
-        let most_significant = least_significant.wrapping_add(1) % 0x100;
+        let most_significant = (least_significant + 1) % 0x100;
         self.read_two(least_significant, most_significant)
     }
 
     fn address_indirect_indexed(&mut self) -> u16 {
         let least_significant = self.address_zero_page();
-        let most_significant = least_significant.wrapping_add(1) % 0x100;
-        self.read_two(least_significant, most_significant).wrapping_add(self.registers.y as i8 as u16)
+        let most_significant = (least_significant + 1) % 0x100;
+        self.read_two(least_significant, most_significant) + self.registers.y as u16
     }
 
     pub(crate) fn address(&mut self, address_mode: AddressMode) -> u16 {
@@ -208,7 +209,7 @@ mod tests {
     }
 
     #[test]
-    fn test_absolute_x_positive() {
+    fn test_absolute_x() {
         let mut c = core();
         c.registers.program_counter = 0x600;
         c.registers.x = 0x8;
@@ -219,18 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_absolute_x_negative() {
-        let mut c = core();
-        c.registers.program_counter = 0x600;
-        c.registers.x = -128i8 as u8;
-        c.cartridge.memory[0x600] = 0x00;
-        c.cartridge.memory[0x600 + 1] = 0x20; // 0x2000 equals 8192
-
-        assert_eq!(c.address_absolute_x(), 8064);
-    }
-
-    #[test]
-    fn test_absolute_y_positive() {
+    fn test_absolute_y() {
         let mut c = core();
         c.registers.program_counter = 0x600;
         c.registers.y = 0x8;
@@ -238,17 +228,6 @@ mod tests {
         c.cartridge.memory[0x600 + 1] = 0x20;
 
         assert_eq!(c.address_absolute_y(), 0x2008);
-    }
-
-    #[test]
-    fn test_absolute_y_negative() {
-        let mut c = core();
-        c.registers.program_counter = 0x600;
-        c.registers.y = -128i8 as u8;
-        c.cartridge.memory[0x600] = 0x00;
-        c.cartridge.memory[0x600 + 1] = 0x20; // 0x2000 equals 8192
-
-        assert_eq!(c.address_absolute_y(), 8064);
     }
 
     #[test]
@@ -278,20 +257,7 @@ mod tests {
     }
 
     #[test]
-    fn test_indirect_indexed_negative() {
-        let mut c = core();
-        c.registers.program_counter = 0x600;
-        c.registers.y = -5i8 as u8;
-        c.cartridge.memory[0x600] = 0xa;
-
-        c.cartridge.memory[0xa] = 0x30;
-        c.cartridge.memory[0xa + 1] = 0x11;
-
-        assert_eq!(c.address_indirect_indexed(), 0x112b);
-    }
-
-    #[test]
-    fn test_indexed_indirect_positive() {
+    fn test_indexed_indirect() {
         let mut c = core();
         c.registers.program_counter = 0x600;
         c.registers.x = 0x5;
