@@ -3,17 +3,22 @@ use crate::processor::registers::Flag;
 use crate::processor::Core;
 
 impl<C : Cartridge> Core<C> {
+    pub(crate) fn push_pc(&mut self) {
+        let next = self.registers.program_counter + 1;
+
+        let pc_most_significant = (next >> 8) as u8;
+        let pc_least_significant = (next & 0x00FF) as u8;
+
+        self.push(pc_most_significant);
+        self.push(pc_least_significant);
+    }
+
     /// No operation.
     pub(crate) fn nop(&self) {}
 
     /// Force interrupt.
     pub(crate) fn brk(&mut self) {
-        let new_program_counter = self.registers.program_counter + 1;
-
-        let most_significant = new_program_counter >> 8;
-        let least_significant = new_program_counter & 0xFF;
-        self.push(most_significant as u8);
-        self.push(least_significant as u8);
+        self.push_pc();
 
         self.registers.set_flag(Flag::Break);
         self.php();
