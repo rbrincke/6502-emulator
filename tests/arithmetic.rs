@@ -56,7 +56,7 @@ fn test_adc_overflow() {
 }
 
 #[test]
-fn test_adc_bcd_positive() {
+fn test_adc_bcd() {
     let core = test(vec![
         SED::implied(),
         LDA::immediate(0b10010011), // 93 decimal
@@ -68,7 +68,20 @@ fn test_adc_bcd_positive() {
 }
 
 #[test]
-fn test_adc_bcd_negative() {
+fn test_adc_bcd_intermediate_carry() {
+    let core = test(vec![
+        CLC::implied(),
+        SED::implied(),
+        LDA::immediate(0b10011001), // 99 decimal
+        ADC::immediate(0b00001001)  // 09 decimal
+    ]);
+
+    core.assert_flags_set(vec![Flag::Decimal, Flag::Carry]);
+    assert_eq!(core.registers.accumulator, 0b00001000); // 08 decimal (with carry)
+}
+
+#[test]
+fn test_sbc_bcd() {
     let core = test(vec![
         SEC::implied(),
         SED::implied(),

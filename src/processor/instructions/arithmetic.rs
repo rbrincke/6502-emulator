@@ -14,7 +14,9 @@ impl<C : Cartridge> Core<C> {
         // Correct values for BCD.
         if self.registers.get_flag(Flag::Decimal) {
             if result_low > 0x09 {
-                result_low += 0x06;
+                result_low = (result_low + 0x06) & 0x0F;
+                // Intermediate carry.
+                result_high += 0x10;
             }
 
             if result_high > 0x90 {
@@ -37,6 +39,7 @@ impl<C : Cartridge> Core<C> {
     pub(crate) fn adc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
         let value = self.read(addr);
+
         self.adc_value(value);
     }
 

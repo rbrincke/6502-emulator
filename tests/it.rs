@@ -25,17 +25,11 @@ fn it() {
         cartridge
     );
 
-    let start = Instant::now();
-
     let mut current_pc = 0x0u16;
     while current_pc != core.registers.program_counter {
         current_pc = core.registers.program_counter;
         core.execute_next();
     }
 
-    let duration = Instant::now().duration_since(start);
-
-    println!("Test stopped at {:x} in {:?}", current_pc, duration);
-
-    assert_eq!(0, current_pc)
+    assert_eq!(0x3469, current_pc)
 }
