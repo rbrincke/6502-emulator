@@ -1,38 +1,38 @@
 # 6502 Emulator
 
-In this repository you'll find a complete and working emulator of the 6502 microprocessor.
+In this repository you'll find a complete and working emulator of the 6502 micro processing unit (MPU).
 
-But why, you might ask? Mostly because I was curious about the inner workings of the Nintendo Entertainment System (NES), which uses this particular microprocessor, and as an excuse to use the Rust programming language.
+But why, you might ask? Mostly because I was curious about the inner workings of the Apple II and the Nintendo Entertainment System (NES), both of which use this particular microprocessor, and as an excuse to try out the Rust programming language.
 
-I am not particularly knowledgeable about the 6502 or Rust for that matter.
+I am not particularly knowledgeable about the 6502 (or Rust for that matter).
 
-## Implementation
+## Implementation notes
 
-Here you'll find some general implementation notes. Together with the code, comments, and an extensive set of unit tests it should hopefully make it possible for anyone to follow along.
+Here I have added some general implementation notes. Together with the code, comments, and an extensive set of unit tests it should hopefully make it possible for anyone to follow along.
 
 ### Memory
 
 The 6502 is an 8-bit microprocessor with a 16-bit address bus. With each slot 8-bit wide and 2<sup>16</sup> such slots available, it therefore has a total of 64 kilobytes of memory.
 
-In this emulator all of this memory is accessible and may be used in whichever way possible, but it is worth highlighting that some of it has special meaning.
+In this emulator all of this memory is read/write accessible, but some of it has innate meaning to the MPU itself.
 
 The first 256 bytes (0x0000 - 0x00FF) is accessed using zero page addressing, referred to as such because it represents the 0th page of memory as indicated by the leading 0x00 for the range.
 
 The first page (0x0100 - 0x01FF) is the hardwired stack address space.
 
-Addresses 0xFFFA through 0xFFFF are special addresses hardwired to initialize the program counter after certain instructions.
+Addresses 0xFFFA through 0xFFFF are hardwired to initialize the program counter after an MPU reset or interrupt.
 
 ### Registers
 
-The 6502 has an 8-bit accumulator, 8-bit X and Y index registers, an 8-bit stack pointer, and a 16-bit program counter.
+The 6502 has an 8-bit accumulator, 8-bit X and Y index registers, an 8-bit stack pointer, and a 16-bit program counter. Of these, only the program counter is made accessible outside of the crate mostly to allow for easy trap (infinite loop) detection. Others can be written to memory by using the corresponding instructions.
 
-There are 7 status flags: carry, zero, interrupt, decimal (for binary coded decimal arithmetic), break, overflow and negative. The missing bit is occupied by a reserved always-on flag, also present in this emulator.
+There are 7 status flags: carry, zero, interrupt, decimal (for binary coded decimal arithmetic), break, overflow and negative. The remaining bit is occupied by a reserved always-on flag, which is also present in this emulator.
 
-You may be surprised to find that none of the code seems to toggle the break flag directly. Apparently the break flag does not really exist as a flag as such, and is only really ever pushed onto the stack as set by the PHP and BRK instructions rather than actually toggled.
+How come none of the code seems to toggle the break flag directly? All of the material I have consulted states that the break flag does not really exist as a flag as such, and is only really ever pushed onto the stack as set by the PHP and BRK instructions rather than actually toggled.
 
 ### Addressing
 
-Indirect addressing in the 6502 suffers from a bug with addresses 0x??FF (ending with FF) that has been reproduced in this emulator.
+Indirect addressing in the 6502 suffers from a bug with addresses 0x--FF (ending with FF) that has been reproduced in this emulator.
 
 Relative addressing used for branches treat the 8-bit value as signed rather than unsigned, and is therefore able to go forwards as well as backwards.
 
@@ -200,10 +200,30 @@ What if the numbers were the other way around? The subtraction 34 - 55 leads to 
 
 Jump to subroutine (JSR) pushes the program counter plus _one_ onto the stack. At first glance this seems wrong. After all, JSR is a 3-byte instruction (1 for the instruction, 2 for the 16-bit address that follows) and so it is _one byte short_ of the actual resume location.
 
-So what's going on here? The return from subroutine (RTS) instruction pops the program counter value pushed by JSR off the stack and _also_ increments it by one.
+So what's going on here? The return from subroutine (RTS) instruction pops the program counter value pushed by JSR off the stack and _also_ increments it by one. It therefore balances out nicely, though none of this is immediately obvious.
+
+### Interrupts
+
+The 6502 has 3 interrupts: one software interrupt (BRK), and two hardware interrupts (IRQ and NMI).
+
+All interrupts trigger roughly the same sequence of events: set the `Interrupt (Disable)` flag, push the program counter and the status flags onto the stack, and load the relevant interrupt handler. It is up to the programmer to ensure that any other registers are restored correctly.
+
+So how are the interrupts different?
+
+BRK represents a software interrupt, and is actually a 2-byte instruction. The program counter that is pushed on the stack skips the 2nd byte, unlike for the hardware interrupts. (I often read this comes in handy when using BRK for debugging purposes, where the 2nd byte offers a convenient place to store debug information).
+
+For BRK, the `Break` flag is set, which is useful to distinguish between software and hardware interrupts.
+
+IRQ represents an interrupt request, a type of interrupt that is serviced when the `Interrupt (Disable)` flag is clear. It is level-triggered, and as such is both set and cleared from outside the MPU.
+
+NMI is a non-maskable interrupt, unaffected by the `Interrupt` flag. It is edge-triggered, and is set from outside the MPU but cleared once the interrupt is serviced.
+
+Both hardware interrupts are represented as externally accessible booleans (`irq` and `nmi`) that are polled during each instruction cycle.
+
+After an interrupt, the RTI instruction resumes execution of the program. Since the correct program counter is pushed onto the stack, no correction as was required for `JSR` and `RTS` is necessary.
 
 ## References
 
 - [Andrew John Jacobs' very good overview of the 6502.](http://www.obelisk.me.uk/6502/)
-- [6502.org tutorials and primers.](http://www.6502.org/tutorials/)
+- [6502.org.](http://www.6502.org)
 - [Klaus Dormann's extensive 6502 test suite.](https://github.com/Klaus2m5/6502_65C02_functional_tests)

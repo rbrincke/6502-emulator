@@ -149,7 +149,8 @@ pub struct BPL;
 impl Relative for BPL { const RELATIVE: u8 = 0x10u8; }
 
 pub struct BRK;
-impl Implied for BRK { const IMPLIED: u8 = 0x00u8; }
+/// BRK is a 2-byte instruction (see implementation notes).
+impl Immediate for BRK { const IMMEDIATE: u8 = 0x00u8; }
 
 pub struct BVC;
 impl Relative for BVC { const RELATIVE: u8 = 0x50u8; }

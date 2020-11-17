@@ -105,17 +105,11 @@ mod tests {
     use crate::emulator::Emulator;
     use crate::memory::basic::DefaultMemory;
     use crate::emulator::registers::Registers;
-
-    fn core() -> Emulator<DefaultMemory> {
-        Emulator {
-            registers: Registers::new(),
-            memory: DefaultMemory::empty()
-        }
-    }
+    use crate::emulator::tests::setup;
 
     #[test]
     fn test_immediate() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
 
         assert_eq!(c.address_immediate(), 0x600);
@@ -123,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_zero_page() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 24u8;
 
@@ -132,7 +126,7 @@ mod tests {
 
     #[test]
     fn test_zero_page_x_positive() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = 0x0f;
         c.memory.memory[0x600] = 0x80;
@@ -142,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_zero_page_x_positive_wrap() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = 0xff;
         c.memory.memory[0x600] = 0x80;
@@ -152,7 +146,7 @@ mod tests {
 
     #[test]
     fn test_zero_page_x_negative() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = -50i8 as u8;
         c.memory.memory[0x600] = 100u8;
@@ -162,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_zero_page_y_positive() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.y = 0x0f;
         c.memory.memory[0x600] = 0x80;
@@ -172,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_zero_page_y_negative() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.y = -50i8 as u8;
         c.memory.memory[0x600] = 100u8;
@@ -182,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_relative_positive() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 0b10000000; // -128
 
@@ -191,7 +185,7 @@ mod tests {
 
     #[test]
     fn test_relative_negative() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 0b01111111; // 127
 
@@ -200,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_absolute() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 0x34;
         c.memory.memory[0x600 + 1] = 0x12;
@@ -210,7 +204,7 @@ mod tests {
 
     #[test]
     fn test_absolute_x() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = 0x8;
         c.memory.memory[0x600] = 0x00;
@@ -221,7 +215,7 @@ mod tests {
 
     #[test]
     fn test_absolute_y() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.y = 0x8;
         c.memory.memory[0x600] = 0x00;
@@ -232,7 +226,7 @@ mod tests {
 
     #[test]
     fn test_indirect() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 0xfc;
         c.memory.memory[0x600 + 1] = 0xba;
@@ -245,20 +239,20 @@ mod tests {
 
     #[test]
     fn test_indirect_bug() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.memory.memory[0x600] = 0xff;
         c.memory.memory[0x600 + 1] = 0x10;
 
         c.memory.memory[0x10ff] = 0xdd;
-        c.memory.memory[0x1000] = 0xcc; // Chip bug: should actually be 10ff + 1 = 1100.
+        c.memory.memory[0x1000] = 0xcc; // Bug-compatible: should actually be 10ff + 1 = 1100.
 
         assert_eq!(c.address_indirect(), 0xccdd);
     }
 
     #[test]
     fn test_indirect_indexed_positive() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.y = 0x5;
         c.memory.memory[0x600] = 0xa;
@@ -271,7 +265,7 @@ mod tests {
 
     #[test]
     fn test_indexed_indirect() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = 0x5;
         c.memory.memory[0x600] = 0xa;
@@ -284,7 +278,7 @@ mod tests {
 
     #[test]
     fn test_indexed_indirect_negative() {
-        let mut c = core();
+        let mut c = setup(vec![]);
         c.registers.program_counter = 0x600;
         c.registers.x = -5i8 as u8;
         c.memory.memory[0x600] = 0xa;
