@@ -84,10 +84,10 @@ impl Status {
 #[derive(Debug)]
 pub struct Registers {
     pub program_counter: u16,
-    pub stack_pointer: u8,
-    pub accumulator: u8,
-    pub x: u8,
-    pub y: u8,
+    pub(crate) stack_pointer: u8,
+    pub(crate) accumulator: u8,
+    pub(crate) x: u8,
+    pub(crate) y: u8,
     pub(crate) status: Status
 }
 

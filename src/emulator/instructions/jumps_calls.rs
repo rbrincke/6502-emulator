@@ -10,7 +10,7 @@ impl<C : Memory> Emulator<C> {
     }
 
     pub(crate) fn jsr(&mut self) {
-        self.push_pc();
+        self.push_pc(self.registers.program_counter + 1);
         self.registers.program_counter = self.address_absolute();
     }
 

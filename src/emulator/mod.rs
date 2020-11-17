@@ -8,14 +8,18 @@ pub mod instructions;
 
 pub struct Emulator<M: Memory> {
     pub registers: Registers,
-    pub(crate) memory: M
+    pub(crate) memory: M,
+    pub irq: bool,
+    pub nmi: bool
 }
 
 impl<C : Memory> Emulator<C> {
     pub fn new(memory: C) -> Emulator<C> {
         let mut emulator = Emulator {
             registers: Registers::new(),
-            memory
+            memory,
+            irq: false,
+            nmi: false
         };
 
         emulator.reset();
@@ -23,13 +27,22 @@ impl<C : Memory> Emulator<C> {
     }
 
     fn reset(&mut self) {
+        self.nmi = false;
+        self.irq = false;
         self.registers.status.set(Flag::Interrupt);
 
-        // Initialize the program counter from the predefined memory locations.
+        // Initialize the program counter.
         self.registers.program_counter = self.read_two(0xFFFC, 0xFFFD);
     }
 
     pub fn execute_next(&mut self) {
+        // Hardware interrupts.
+        if self.nmi {
+            self.nmi()
+        } else if self.irq && !self.registers.status.get(Flag::Interrupt) {
+            self.irq()
+        }
+
         let instruction = self.read(self.registers.program_counter);
         self.registers.program_counter += 1;
 
@@ -90,7 +103,9 @@ mod tests {
 
         let mut c = Emulator {
             registers: r,
-            memory: DefaultMemory::empty()
+            memory: DefaultMemory::empty(),
+            irq: false,
+            nmi: false
         };
 
         c.set_flags(flags);

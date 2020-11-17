@@ -35,7 +35,7 @@ impl<C : Memory> Emulator<C> {
             BMI::RELATIVE => self.bmi(),
             BNE::RELATIVE => self.bne(),
             BPL::RELATIVE => self.bpl(),
-            BRK::IMPLIED => self.brk(),
+            BRK::IMMEDIATE => self.brk(),
             BVC::RELATIVE => self.bvc(),
             BVS::RELATIVE => self.bvs(),
             CLC::IMPLIED => self.clc(),
