@@ -1,12 +1,14 @@
+use crate::emulator::addressing::AddressMode;
 use crate::emulator::registers::Flag;
-use crate::memory::Memory;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     fn branch(&mut self, flag: Flag, branch_if: bool) {
-        let displacement = self.address_relative();
+        let displacement = self.address(AddressMode::Relative);
         if self.registers.status.get(flag) == branch_if {
-            self.registers.program_counter = self.registers.program_counter.wrapping_add(displacement)
+            self.registers.program_counter =
+                self.registers.program_counter.wrapping_add(displacement)
         }
     }
 
@@ -52,23 +54,22 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::tests::{setup, Instruction};
-    use crate::emulator::registers::Flag::{Carry, Zero, Overflow, Negative};
     use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::{Carry, Negative, Overflow, Zero};
+    use crate::emulator::tests::{setup, Instruction};
     use crate::emulator::Emulator;
 
-    fn test_branch(
-        setup_flags: Vec<Flag>,
-        instruction: Instruction,
-        expect_branch: bool
-    ) {
+    fn test_branch(setup_flags: Vec<Flag>, instruction: Instruction, expect_branch: bool) {
         let mut c = setup(setup_flags);
 
         let current_program_counter = c.registers.program_counter;
         c.memory.memory[current_program_counter as usize] = 1;
         instruction(&mut c);
 
-        assert_eq!(current_program_counter + 1 + (expect_branch as u16), c.registers.program_counter);
+        assert_eq!(
+            current_program_counter + 1 + (expect_branch as u16),
+            c.registers.program_counter
+        );
     }
 
     #[test]

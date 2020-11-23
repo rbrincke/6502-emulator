@@ -1,8 +1,8 @@
 use crate::emulator::addressing::AddressMode;
-use crate::memory::Memory;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     /// Jump.
     pub(crate) fn jmp(&mut self, address_mode: AddressMode) {
         let address = self.address(address_mode);
@@ -21,8 +21,8 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::tests::setup;
     use crate::emulator::addressing::AddressMode;
+    use crate::emulator::tests::setup;
 
     #[test]
     fn test_jmp() {

@@ -1,16 +1,16 @@
-use crate::memory::Memory;
 use crate::emulator::addressing::AddressMode;
 use crate::emulator::registers::Flag;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
-    fn shift_accumulator<F : Fn(&mut Self, u8) -> u8>(&mut self, shift: F) {
+impl<C: Memory> Emulator<C> {
+    fn shift_accumulator<F: Fn(&mut Self, u8) -> u8>(&mut self, shift: F) {
         let value = self.registers.accumulator;
         let result = shift(self, value);
         self.registers.accumulator = result;
     }
 
-    fn shift_address<F : Fn(&mut Self, u8) -> u8>(&mut self, address_mode: AddressMode, shift: F) {
+    fn shift_address<F: Fn(&mut Self, u8) -> u8>(&mut self, address_mode: AddressMode, shift: F) {
         let address = self.address(address_mode);
         let value = self.read(address);
         let result = shift(self, value);
@@ -40,7 +40,9 @@ impl<C : Memory> Emulator<C> {
     fn lsr(&mut self, value: u8) -> u8 {
         let new_carry_flag_value = (value & 0b00000001) != 0;
         let result = value >> 1;
-        self.registers.status.set_to(Flag::Carry, new_carry_flag_value);
+        self.registers
+            .status
+            .set_to(Flag::Carry, new_carry_flag_value);
 
         self.registers.status.update_zero_negative(result);
 
@@ -60,7 +62,9 @@ impl<C : Memory> Emulator<C> {
     fn rol(&mut self, value: u8) -> u8 {
         let new_carry_flag_value = value & 0b10000000 != 0;
         let result = value << 1 | self.registers.status.get(Flag::Carry) as u8;
-        self.registers.status.set_to(Flag::Carry, new_carry_flag_value);
+        self.registers
+            .status
+            .set_to(Flag::Carry, new_carry_flag_value);
 
         self.registers.status.update_zero_negative(result);
 
@@ -80,7 +84,9 @@ impl<C : Memory> Emulator<C> {
     fn ror(&mut self, value: u8) -> u8 {
         let new_carry_flag_value = value & 0b00000001 != 0;
         let result = value >> 1 | (self.registers.status.get(Flag::Carry) as u8) << 7;
-        self.registers.status.set_to(Flag::Carry, new_carry_flag_value);
+        self.registers
+            .status
+            .set_to(Flag::Carry, new_carry_flag_value);
 
         self.registers.status.update_zero_negative(result);
 
@@ -100,12 +106,18 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::tests::{setup, TestAssertions, Instruction};
-    use crate::emulator::registers::Flag::{Carry, Negative};
-    use crate::emulator::Emulator;
     use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::{Carry, Negative};
+    use crate::emulator::tests::{setup, Instruction, TestAssertions};
+    use crate::emulator::Emulator;
 
-    fn test_shift(flags: Vec<Flag>, input: u8, instruction: Instruction, expected: u8, expected_flags_set: Vec<Flag>) {
+    fn test_shift(
+        flags: Vec<Flag>,
+        input: u8,
+        instruction: Instruction,
+        expected: u8,
+        expected_flags_set: Vec<Flag>,
+    ) {
         let mut c = setup(flags);
 
         c.registers.accumulator = input;
@@ -117,31 +129,67 @@ mod test {
 
     #[test]
     fn test_asl() {
-        test_shift(vec![], 0b10001111, Emulator::asl_acc, 0b00011110, vec![Carry]);
+        test_shift(
+            vec![],
+            0b10001111,
+            Emulator::asl_acc,
+            0b00011110,
+            vec![Carry],
+        );
     }
 
     #[test]
     fn test_lsr() {
-        test_shift(vec![], 0b10001111, Emulator::lsr_acc, 0b01000111, vec![Carry])
+        test_shift(
+            vec![],
+            0b10001111,
+            Emulator::lsr_acc,
+            0b01000111,
+            vec![Carry],
+        )
     }
 
     #[test]
     fn test_rol_carry_clear() {
-        test_shift(vec![], 0b10001111, Emulator::rol_acc, 0b00011110, vec![Carry])
+        test_shift(
+            vec![],
+            0b10001111,
+            Emulator::rol_acc,
+            0b00011110,
+            vec![Carry],
+        )
     }
 
     #[test]
     fn test_rol_carry_set() {
-        test_shift(vec![Carry], 0b10001111, Emulator::rol_acc, 0b00011111, vec![Carry])
+        test_shift(
+            vec![Carry],
+            0b10001111,
+            Emulator::rol_acc,
+            0b00011111,
+            vec![Carry],
+        )
     }
 
     #[test]
     fn test_ror_carry_clear() {
-        test_shift(vec![], 0b10001111, Emulator::ror_acc, 0b01000111, vec![Carry])
+        test_shift(
+            vec![],
+            0b10001111,
+            Emulator::ror_acc,
+            0b01000111,
+            vec![Carry],
+        )
     }
 
     #[test]
     fn test_ror_carry_set() {
-        test_shift(vec![Carry], 0b10001111, Emulator::ror_acc, 0b11000111, vec![Carry, Negative])
+        test_shift(
+            vec![Carry],
+            0b10001111,
+            Emulator::ror_acc,
+            0b11000111,
+            vec![Carry, Negative],
+        )
     }
 }

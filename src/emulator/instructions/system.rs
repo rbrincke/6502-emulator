@@ -1,8 +1,8 @@
-use crate::emulator::Emulator;
 use crate::emulator::registers::Flag;
+use crate::emulator::Emulator;
 use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     pub(crate) fn pull_pc(&mut self) -> u16 {
         let least_significant = self.pop() as u16;
         let most_significant = self.pop() as u16;
@@ -21,7 +21,12 @@ impl<C : Memory> Emulator<C> {
     /// No operation.
     pub(crate) fn nop(&self) {}
 
-    fn interrupt(&mut self, is_brk: bool, interrupt_handler_addr_least: u16, interrupt_handler_vector_most: u16) {
+    fn interrupt(
+        &mut self,
+        is_brk: bool,
+        interrupt_handler_addr_least: u16,
+        interrupt_handler_vector_most: u16,
+    ) {
         // BRK skips one instruction.
         self.push_pc(self.registers.program_counter + is_brk as u16);
 
@@ -34,7 +39,8 @@ impl<C : Memory> Emulator<C> {
 
         self.registers.status.set(Flag::Interrupt);
 
-        let interrupt_handler_addr = self.read_two(interrupt_handler_addr_least, interrupt_handler_vector_most);
+        let interrupt_handler_addr =
+            self.read_two(interrupt_handler_addr_least, interrupt_handler_vector_most);
         self.registers.program_counter = interrupt_handler_addr;
     }
 
@@ -63,13 +69,18 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod tests {
+    use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::Interrupt;
+    use crate::emulator::tests::{setup, Instruction, TestAssertions};
     use crate::emulator::Emulator;
-    use crate::emulator::registers::{Flag, Status};
-    use crate::emulator::registers::Flag::{Interrupt, Negative, Zero};
-    use crate::emulator::tests::{Instruction, setup, TestAssertions};
     use crate::memory::basic::DefaultMemory;
 
-    fn test_interrupt(e: &mut Emulator<DefaultMemory>, instruction: Instruction, irh_addr_least: usize, irh_addr_most: usize) {
+    fn test_interrupt(
+        e: &mut Emulator<DefaultMemory>,
+        instruction: Instruction,
+        irh_addr_least: usize,
+        irh_addr_most: usize,
+    ) {
         e.registers.status.clear(Flag::Interrupt);
         e.registers.stack_pointer = 0xFF;
 

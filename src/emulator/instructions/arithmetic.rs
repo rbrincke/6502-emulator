@@ -1,15 +1,17 @@
-use crate::memory::Memory;
 use crate::emulator::addressing::AddressMode;
-use crate::emulator::Emulator;
 use crate::emulator::registers::Flag;
+use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     fn adc_value(&mut self, value: u8) {
         let carry = self.registers.status.get(Flag::Carry) as u16;
 
         // Split into least and most significant.
-        let mut result_least_significant = (self.registers.accumulator as u16 & 0x0F) + (value as u16 & 0x0F) + carry;
-        let mut result_most_significant = (self.registers.accumulator as u16 & 0xF0) + (value as u16 & 0xF0);
+        let mut result_least_significant =
+            (self.registers.accumulator as u16 & 0x0F) + (value as u16 & 0x0F) + carry;
+        let mut result_most_significant =
+            (self.registers.accumulator as u16 & 0xF0) + (value as u16 & 0xF0);
 
         // Correct values for BCD.
         if self.registers.status.get(Flag::Decimal) {
@@ -26,7 +28,11 @@ impl<C : Memory> Emulator<C> {
         let result_intermediate = result_least_significant + result_most_significant;
 
         self.registers.status.update_carry(result_intermediate);
-        self.registers.status.update_overflow(self.registers.accumulator, value, result_intermediate);
+        self.registers.status.update_overflow(
+            self.registers.accumulator,
+            value,
+            result_intermediate,
+        );
 
         let result = (result_intermediate & 0xFF) as u8;
         self.registers.accumulator = result;
@@ -58,7 +64,9 @@ impl<C : Memory> Emulator<C> {
         let addr = self.address(address_mode);
         let value = self.read(addr);
 
-        self.registers.status.set_to(Flag::Carry, register_value >= value);
+        self.registers
+            .status
+            .set_to(Flag::Carry, register_value >= value);
         let difference = register_value.wrapping_sub(value);
 
         self.registers.status.update_zero_negative(difference);
@@ -82,13 +90,11 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::memory::basic::DefaultMemory;
     use crate::emulator::addressing::AddressMode;
-    use crate::emulator::Emulator;
-    use crate::emulator::instructions::opcodes::{ADC, Immediate};
-    use crate::emulator::registers::{Flag, Registers};
     use crate::emulator::registers::Flag::*;
+    use crate::emulator::registers::{Flag, Registers};
     use crate::emulator::tests::*;
+    use crate::emulator::Emulator;
 
     fn test_arithmetic(
         instruction: AddressInstruction,
@@ -96,7 +102,7 @@ mod test {
         accumulator_value: u8,
         immediate_value: u8,
         expected_result: u8,
-        expected_flags_set: Vec<Flag>
+        expected_flags_set: Vec<Flag>,
     ) {
         let mut t = setup(setup_flags);
 
@@ -115,7 +121,14 @@ mod test {
 
     #[test]
     fn test_adc_negative() {
-        test_arithmetic(Emulator::adc, vec![], -3i8 as u8, -5i8 as u8, -8i8 as u8, vec![Carry, Negative]);
+        test_arithmetic(
+            Emulator::adc,
+            vec![],
+            -3i8 as u8,
+            -5i8 as u8,
+            -8i8 as u8,
+            vec![Carry, Negative],
+        );
     }
 
     #[test]
@@ -125,17 +138,38 @@ mod test {
 
     #[test]
     fn test_adc_overflow() {
-        test_arithmetic(Emulator::adc, vec![], 127, 1, -128i8 as u8, vec![Overflow, Negative]);
+        test_arithmetic(
+            Emulator::adc,
+            vec![],
+            127,
+            1,
+            -128i8 as u8,
+            vec![Overflow, Negative],
+        );
     }
 
     #[test]
     fn test_adc_decimal_without_carry() {
-        test_arithmetic(Emulator::adc, vec![Decimal], 0x33, 0x22, 0x55, vec![Decimal]);
+        test_arithmetic(
+            Emulator::adc,
+            vec![Decimal],
+            0x33,
+            0x22,
+            0x55,
+            vec![Decimal],
+        );
     }
 
     #[test]
     fn test_adc_decimal_with_carry() {
-        test_arithmetic(Emulator::adc, vec![Decimal], 0x99, 0x09, 0x08, vec![Decimal, Carry]);
+        test_arithmetic(
+            Emulator::adc,
+            vec![Decimal],
+            0x99,
+            0x09,
+            0x08,
+            vec![Decimal, Carry],
+        );
     }
 
     #[test]
@@ -145,29 +179,57 @@ mod test {
 
     #[test]
     fn test_sbc_negative() {
-        test_arithmetic(Emulator::sbc, vec![Carry], -3i8 as u8, -5i8 as u8, 2, vec![Carry])
+        test_arithmetic(
+            Emulator::sbc,
+            vec![Carry],
+            -3i8 as u8,
+            -5i8 as u8,
+            2,
+            vec![Carry],
+        )
     }
 
     #[test]
     fn test_sbc_mixed() {
-        test_arithmetic(Emulator::sbc, vec![Carry], -3i8 as u8, 5, -8i8 as u8, vec![Carry, Negative])
+        test_arithmetic(
+            Emulator::sbc,
+            vec![Carry],
+            -3i8 as u8,
+            5,
+            -8i8 as u8,
+            vec![Carry, Negative],
+        )
     }
 
     #[test]
     fn test_sbc_overflow() {
-        test_arithmetic(Emulator::sbc, vec![Carry], -128i8 as u8, 1, 127, vec![Carry, Overflow])
+        test_arithmetic(
+            Emulator::sbc,
+            vec![Carry],
+            -128i8 as u8,
+            1,
+            127,
+            vec![Carry, Overflow],
+        )
     }
 
     #[test]
     fn test_sbc_bcd() {
-        test_arithmetic(Emulator::sbc, vec![Decimal, Carry], 0x91, 0x23, 0x68, vec![Carry, Decimal])
+        test_arithmetic(
+            Emulator::sbc,
+            vec![Decimal, Carry],
+            0x91,
+            0x23,
+            0x68,
+            vec![Carry, Decimal],
+        )
     }
 
-    fn test_compare<R: Fn(&mut Registers) -> ()>(
+    fn test_compare<R: Fn(&mut Registers)>(
         instruction: AddressInstruction,
         register_setup: R,
         immediate_value: u8,
-        expected_flags_set: Vec<Flag>
+        expected_flags_set: Vec<Flag>,
     ) {
         let mut t = setup(vec![]);
 
@@ -180,7 +242,12 @@ mod test {
 
     #[test]
     fn test_cmp_1() {
-        test_compare(Emulator::cmp, |r| r.accumulator = 0xau8, 0xbu8, vec![Negative])
+        test_compare(
+            Emulator::cmp,
+            |r| r.accumulator = 0xau8,
+            0xbu8,
+            vec![Negative],
+        )
     }
 
     #[test]
@@ -190,7 +257,12 @@ mod test {
 
     #[test]
     fn test_cmp_3() {
-        test_compare(Emulator::cmp, |r| r.accumulator = 0xbu8, 0xbu8, vec![Carry, Zero])
+        test_compare(
+            Emulator::cmp,
+            |r| r.accumulator = 0xbu8,
+            0xbu8,
+            vec![Carry, Zero],
+        )
     }
 
     #[test]

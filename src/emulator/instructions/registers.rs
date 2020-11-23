@@ -1,7 +1,7 @@
-use crate::memory::Memory;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     /// Transfer Accumulator to X.
     pub(crate) fn tax(&mut self) {
         self.registers.x = self.registers.accumulator;
@@ -17,21 +17,25 @@ impl<C : Memory> Emulator<C> {
     /// Transfer X to Accumulator.
     pub(crate) fn txa(&mut self) {
         self.registers.accumulator = self.registers.x;
-        self.registers.status.update_zero_negative(self.registers.accumulator);
+        self.registers
+            .status
+            .update_zero_negative(self.registers.accumulator);
     }
 
     /// Transfer Y to Accumulator.
     pub(crate) fn tya(&mut self) {
         self.registers.accumulator = self.registers.y;
-        self.registers.status.update_zero_negative(self.registers.accumulator);
+        self.registers
+            .status
+            .update_zero_negative(self.registers.accumulator);
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::tests::{setup, TestAssertions};
-    use crate::emulator::registers::Flag::{Zero, Negative};
     use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::{Negative, Zero};
+    use crate::emulator::tests::{setup, TestAssertions};
 
     fn test_tax(value: u8, expected_flags_set: Vec<Flag>) {
         let mut c = setup(vec![]);
@@ -120,16 +124,16 @@ mod test {
 
     #[test]
     fn test_tya_zero() {
-        test_txa(0, vec![Zero])
+        test_tya(0, vec![Zero])
     }
 
     #[test]
     fn test_tya_positive() {
-        test_txa(8, vec![])
+        test_tya(8, vec![])
     }
 
     #[test]
     fn test_tya_negative() {
-        test_txa(-8i8 as u8, vec![Negative])
+        test_tya(-8i8 as u8, vec![Negative])
     }
 }

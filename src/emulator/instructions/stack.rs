@@ -1,8 +1,8 @@
-use crate::memory::Memory;
+use crate::emulator::registers::Flag;
 use crate::emulator::Emulator;
-use crate::emulator::registers::{Flag, Registers, Status};
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     /// Transfer X to Stack Pointer.
     pub(crate) fn txs(&mut self) {
         self.registers.stack_pointer = self.registers.x;
@@ -24,8 +24,7 @@ impl<C : Memory> Emulator<C> {
         self.registers.stack_pointer = self.registers.stack_pointer.wrapping_add(1);
 
         let address = 0x100 + self.registers.stack_pointer as u16;
-        let value = self.read(address);
-        value
+        self.read(address)
     }
 
     pub(crate) fn pha(&mut self) {
@@ -43,7 +42,9 @@ impl<C : Memory> Emulator<C> {
 
     pub(crate) fn pla(&mut self) {
         self.registers.accumulator = self.pop();
-        self.registers.status.update_zero_negative(self.registers.accumulator);
+        self.registers
+            .status
+            .update_zero_negative(self.registers.accumulator);
     }
 
     /// Pull processor status.
@@ -55,9 +56,9 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod tests {
-    use crate::emulator::tests::{setup, TestAssertions};
+    use crate::emulator::registers::Flag;
     use crate::emulator::registers::Flag::{Negative, Zero};
-    use crate::emulator::registers::{Flag, Status};
+    use crate::emulator::tests::{setup, TestAssertions};
 
     #[test]
     fn test_txs() {

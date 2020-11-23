@@ -1,25 +1,25 @@
 use crate::emulator::registers::{Flag, Registers};
 use crate::memory::Memory;
 
-pub mod read_write;
-pub mod registers;
 mod addressing;
 pub mod instructions;
+pub mod read_write;
+pub mod registers;
 
 pub struct Emulator<M: Memory> {
     pub registers: Registers,
     pub(crate) memory: M,
     pub irq: bool,
-    pub nmi: bool
+    pub nmi: bool,
 }
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     pub fn new(memory: C) -> Emulator<C> {
         let mut emulator = Emulator {
             registers: Registers::new(),
             memory,
             irq: false,
-            nmi: false
+            nmi: false,
         };
 
         emulator.reset();
@@ -53,13 +53,14 @@ impl<C : Memory> Emulator<C> {
 #[cfg(test)]
 mod tests {
     use crate::emulator::addressing::AddressMode;
-    use crate::emulator::Emulator;
-    use crate::emulator::registers::{Flag, Registers};
     use crate::emulator::registers::Flag::*;
+    use crate::emulator::registers::{Flag, Registers};
+    use crate::emulator::Emulator;
     use crate::memory::basic::DefaultMemory;
 
     pub(crate) type Instruction = for<'r> fn(&'r mut Emulator<DefaultMemory>) -> ();
-    pub(crate) type AddressInstruction = for<'r> fn(&'r mut Emulator<DefaultMemory>, AddressMode) -> ();
+    pub(crate) type AddressInstruction =
+        for<'r> fn(&'r mut Emulator<DefaultMemory>, AddressMode) -> ();
     pub(crate) type RegisterRead = fn(&Registers) -> u8;
     pub(crate) type RegisterWrite = fn(&mut Registers, value: u8) -> ();
 
@@ -78,9 +79,11 @@ mod tests {
     impl TestSetup for Emulator<DefaultMemory> {
         /// Sets flags by setting all provided flags to 1 and all others to 0. Ignores the Reserved flag.
         fn set_flags(&mut self, set: Vec<Flag>) {
-            [Carry, Zero, Interrupt, Decimal, Break, Overflow, Negative].iter().for_each(|f| {
-                self.registers.status.set_to(*f, set.contains(f));
-            });
+            [Carry, Zero, Interrupt, Decimal, Break, Overflow, Negative]
+                .iter()
+                .for_each(|f| {
+                    self.registers.status.set_to(*f, set.contains(f));
+                });
         }
     }
 
@@ -90,10 +93,17 @@ mod tests {
 
     impl TestAssertions for Emulator<DefaultMemory> {
         fn assert_flags_set(&self, expected_flags_set: Vec<Flag>) {
-            [Carry, Zero, Interrupt, Decimal, Break, Overflow, Negative].iter().for_each(|f| {
-                let expectation = expected_flags_set.contains(f);
-                assert_eq!(self.registers.status.get(*f), expectation, "Expectation for {:?} flag failed.", f);
-            });
+            [Carry, Zero, Interrupt, Decimal, Break, Overflow, Negative]
+                .iter()
+                .for_each(|f| {
+                    let expectation = expected_flags_set.contains(f);
+                    assert_eq!(
+                        self.registers.status.get(*f),
+                        expectation,
+                        "Expectation for {:?} flag failed.",
+                        f
+                    );
+                });
         }
     }
 
@@ -105,7 +115,7 @@ mod tests {
             registers: r,
             memory: DefaultMemory::empty(),
             irq: false,
-            nmi: false
+            nmi: false,
         };
 
         c.set_flags(flags);

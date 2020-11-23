@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate phf;
-
 pub mod emulator;
 pub mod memory;
 
