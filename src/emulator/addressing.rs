@@ -1,5 +1,5 @@
-use crate::memory::Memory;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
 #[derive(Debug, Copy, Clone)]
 pub enum AddressMode {
@@ -44,7 +44,7 @@ impl<C: Memory> Emulator<C> {
         v
     }
 
-    pub(crate) fn address_relative(&mut self) -> u16 {
+    fn address_relative(&mut self) -> u16 {
         let immediate_address = self.address_immediate();
         self.read(immediate_address) as i8 as u16
     }
@@ -68,7 +68,10 @@ impl<C: Memory> Emulator<C> {
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
         // Actually a bug in the original 6502.
-        self.read_two(least_significant, (least_significant & 0xFF00) | ((least_significant + 1) % 0x100))
+        self.read_two(
+            least_significant,
+            (least_significant & 0xFF00) | ((least_significant + 1) % 0x100),
+        )
     }
 
     fn address_indexed_indirect(&mut self) -> u16 {
@@ -95,16 +98,13 @@ impl<C: Memory> Emulator<C> {
             AddressMode::AbsoluteY => self.address_absolute_y(),
             AddressMode::Indirect => self.address_indirect(),
             AddressMode::IndexedIndirect => self.address_indexed_indirect(),
-            AddressMode::IndirectIndexed => self.address_indirect_indexed()
+            AddressMode::IndirectIndexed => self.address_indirect_indexed(),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::emulator::Emulator;
-    use crate::memory::basic::DefaultMemory;
-    use crate::emulator::registers::Registers;
     use crate::emulator::tests::setup;
 
     #[test]

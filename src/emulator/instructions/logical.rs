@@ -1,17 +1,20 @@
+use std::ops::{BitAndAssign, BitOrAssign, BitXorAssign};
+
 use crate::emulator::addressing::AddressMode;
 use crate::emulator::registers::Flag;
-use crate::memory::Memory;
 use crate::emulator::Emulator;
-use std::ops::{BitAndAssign, BitXorAssign, BitOrAssign};
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
-    fn and_eor_ora<F : for<'r> Fn(&'r mut u8, u8) -> ()>(&mut self, address_mode: AddressMode, apply: F) {
+impl<C: Memory> Emulator<C> {
+    fn and_eor_ora<F: for<'r> Fn(&'r mut u8, u8)>(&mut self, address_mode: AddressMode, apply: F) {
         let address = self.address(address_mode);
         let r = self.read(address);
 
         apply(&mut self.registers.accumulator, r);
 
-        self.registers.status.update_zero_negative(self.registers.accumulator);
+        self.registers
+            .status
+            .update_zero_negative(self.registers.accumulator);
     }
 
     /// Logical AND.
@@ -37,17 +40,21 @@ impl<C : Memory> Emulator<C> {
         let bit_and_acc_v = self.registers.accumulator & value;
         self.registers.status.update_zero(bit_and_acc_v);
 
-        self.registers.status.set_to(Flag::Negative, (value & 0b10000000) != 0);
-        self.registers.status.set_to(Flag::Overflow, (value & 0b01000000) != 0);
+        self.registers
+            .status
+            .set_to(Flag::Negative, (value & 0b10000000) != 0);
+        self.registers
+            .status
+            .set_to(Flag::Overflow, (value & 0b01000000) != 0);
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::tests::{setup, TestAssertions};
     use crate::emulator::addressing::AddressMode;
-    use crate::emulator::registers::Flag::{Zero, Negative, Overflow};
     use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::{Negative, Overflow, Zero};
+    use crate::emulator::tests::{setup, TestAssertions};
 
     #[test]
     fn test_and() {

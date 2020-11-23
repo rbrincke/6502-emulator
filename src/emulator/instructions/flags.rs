@@ -1,8 +1,8 @@
-use crate::memory::Memory;
-use crate::emulator::Emulator;
 use crate::emulator::registers::Flag;
+use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     /// Clear carry.
     pub(crate) fn clc(&mut self) {
         self.registers.status.clear(Flag::Carry);
@@ -41,17 +41,12 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::emulator::registers::Flag::*;
     use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::*;
     use crate::emulator::tests::*;
     use crate::emulator::Emulator;
-    use crate::memory::basic::DefaultMemory;
 
-    fn test(
-        setup_flags: Vec<Flag>,
-        instruction: Instruction,
-        expected_flags_set: Vec<Flag>
-    ) {
+    fn test(setup_flags: Vec<Flag>, instruction: Instruction, expected_flags_set: Vec<Flag>) {
         let mut c = setup(setup_flags);
 
         instruction(&mut c);

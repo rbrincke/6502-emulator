@@ -5,7 +5,7 @@ const PC_RESET_1: usize = 0xFFFC;
 const PC_RESET_2: usize = 0xFFFD;
 
 pub struct DefaultMemory {
-    pub memory: [u8; SIZE]
+    pub memory: [u8; SIZE],
 }
 
 impl Memory for DefaultMemory {
@@ -20,7 +20,9 @@ impl Memory for DefaultMemory {
 
 impl DefaultMemory {
     pub fn empty() -> DefaultMemory {
-        DefaultMemory { memory: [0u8; SIZE] }
+        DefaultMemory {
+            memory: [0u8; SIZE],
+        }
     }
 
     pub fn load(&mut self, instructions: Vec<u8>, start_location: usize) {

@@ -1,8 +1,6 @@
-use std::ops::{Add, Sub};
-
-use crate::memory::Memory;
 use crate::emulator::addressing::AddressMode;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
 impl<C: Memory> Emulator<C> {
     fn inc_dec<F: Fn(u8, u8) -> u8>(&mut self, address_mode: AddressMode, apply: F) {
@@ -48,14 +46,14 @@ impl<C: Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::memory::basic::DefaultMemory;
     use crate::emulator::addressing::AddressMode;
+    use crate::emulator::registers::Flag;
+    use crate::emulator::registers::Flag::{Negative, Zero};
+    use crate::emulator::tests::{setup, TestAssertions};
     use crate::emulator::Emulator;
-    use crate::emulator::registers::{Flag, Registers};
-    use crate::emulator::tests::{setup, TestAssertions, TestSetup};
-    use crate::emulator::registers::Flag::{Zero, Negative};
+    use crate::memory::basic::DefaultMemory;
 
-    fn test_x<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>) -> ()>(
+    fn test_x<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>)>(
         initial: u8,
         instruction: F,
         expected: u8,
@@ -105,7 +103,7 @@ mod test {
         test_x(-128i8 as u8, Emulator::dex, 127, vec![])
     }
 
-    fn test_y<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>) -> ()>(
+    fn test_y<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>)>(
         initial: u8,
         instruction: F,
         expected: u8,
@@ -155,7 +153,7 @@ mod test {
         test_y(-128i8 as u8, Emulator::dey, 127, vec![])
     }
 
-    fn test<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>, AddressMode) -> ()>(
+    fn test<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>, AddressMode)>(
         value: u8,
         instruction: F,
         expected: u8,

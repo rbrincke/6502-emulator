@@ -1,8 +1,8 @@
-use crate::memory::Memory;
 use crate::emulator::addressing::AddressMode;
 use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     fn load(&mut self, address_mode: AddressMode) -> u8 {
         let address = self.address(address_mode);
         let value = self.read(address);
@@ -50,12 +50,11 @@ impl<C : Memory> Emulator<C> {
 
 #[cfg(test)]
 mod test {
-    use crate::memory::basic::DefaultMemory;
     use crate::emulator::addressing::AddressMode;
-    use crate::emulator::Emulator;
-    use crate::emulator::registers::{Flag, Registers};
+    use crate::emulator::registers::Flag;
     use crate::emulator::registers::Flag::{Negative, Zero};
     use crate::emulator::tests::*;
+    use crate::emulator::Emulator;
 
     const TEST_VALUE: u8 = 0b10101010;
 
@@ -63,7 +62,7 @@ mod test {
         instruction: AddressInstruction,
         load_target: RegisterRead,
         value: u8,
-        expected_flags_set: Vec<Flag>
+        expected_flags_set: Vec<Flag>,
     ) {
         let mut c = setup(vec![]);
 
@@ -119,10 +118,7 @@ mod test {
         test_load(Emulator::ldy, READ_Y, -1i8 as u8, vec![Negative]);
     }
 
-    fn test_store(
-        source_register: RegisterWrite,
-        instruction: AddressInstruction
-    ) {
+    fn test_store(source_register: RegisterWrite, instruction: AddressInstruction) {
         let mut c = setup(vec![]);
 
         source_register(&mut c.registers, TEST_VALUE);

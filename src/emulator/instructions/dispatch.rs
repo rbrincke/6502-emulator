@@ -1,9 +1,9 @@
 use crate::emulator::addressing::AddressMode;
-use crate::memory::Memory;
-use crate::emulator::Emulator;
 use crate::emulator::instructions::opcodes::*;
+use crate::emulator::Emulator;
+use crate::memory::Memory;
 
-impl<C : Memory> Emulator<C> {
+impl<C: Memory> Emulator<C> {
     pub(crate) fn execute(&mut self, instruction: u8) {
         match instruction {
             ADC::IMMEDIATE => self.adc(AddressMode::Immediate),
@@ -157,7 +157,7 @@ impl<C : Memory> Emulator<C> {
             TXA::IMPLIED => self.txa(),
             TXS::IMPLIED => self.txs(),
             TYA::IMPLIED => self.tya(),
-            _ => panic!("Unknown instruction {:x}", instruction)
+            _ => panic!("Unknown instruction {:x}", instruction),
         }
     }
 }

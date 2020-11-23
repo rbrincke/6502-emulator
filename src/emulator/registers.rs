@@ -7,12 +7,12 @@ pub enum Flag {
     Break,
     Reserved,
     Overflow,
-    Negative
+    Negative,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct Status {
-    pub(crate) flags: u8
+    pub(crate) flags: u8,
 }
 
 impl Status {
@@ -20,7 +20,7 @@ impl Status {
 
     fn new() -> Status {
         Status {
-            flags: Self::DEFAULT_STATUS
+            flags: Self::DEFAULT_STATUS,
         }
     }
 
@@ -88,12 +88,10 @@ pub struct Registers {
     pub(crate) accumulator: u8,
     pub(crate) x: u8,
     pub(crate) y: u8,
-    pub(crate) status: Status
+    pub(crate) status: Status,
 }
 
 impl Registers {
-    pub(crate) const DEFAULT_STATUS: u8 = 0b00100000;
-
     pub(crate) fn new() -> Registers {
         Registers {
             program_counter: 0,
@@ -101,18 +99,18 @@ impl Registers {
             accumulator: 0,
             x: 0,
             y: 0,
-            status: Status::new()
+            status: Status::new(),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::emulator::registers::{Flag, Registers, Status};
+    use crate::emulator::registers::{Flag, Status};
 
     #[test]
     fn test_reserved_always_on() {
-        let mut status = Status::new();
+        let status = Status::new();
         assert_eq!(true, status.get(Flag::Reserved));
     }
 
