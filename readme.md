@@ -1,12 +1,38 @@
 # 6502 Emulator
 
+**Table of contents**
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [About](#about)
+- [Emulator](#emulator)
+  - [Memory](#memory)
+  - [Registers](#registers)
+  - [Addressing](#addressing)
+  - [Arithmetic](#arithmetic)
+    - [Binary numbers](#binary-numbers)
+      - [Addition (ADC)](#addition-adc)
+      - [Subtraction (SBC)](#subtraction-sbc)
+    - [Binary Coded Decimal](#binary-coded-decimal)
+      - [Addition (ADC)](#addition-adc-1)
+      - [Subtraction (SBC)](#subtraction-sbc-1)
+  - [Jump to and return from subroutine](#jump-to-and-return-from-subroutine)
+  - [Interrupts](#interrupts)
+- [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## About
+
 In this repository you'll find a complete and working emulator of the 6502 micro processing unit (MPU).
 
-But why, you might ask? Mostly because I was curious about the inner workings of the Apple II and the Nintendo Entertainment System (NES), both of which use this particular microprocessor, and as an excuse to try out the Rust programming language.
+But why, you might ask? Mostly because I was curious about the inner workings of the Apple II and the Nintendo Entertainment System (NES), both of which use variants of this particular microprocessor, and as an excuse to try out the Rust programming language.
 
 I am not particularly knowledgeable about the 6502 (or Rust for that matter).
 
-## Implementation notes
+## Emulator
 
 Here I have added some general implementation notes. Together with the code, comments, and an extensive set of unit tests it should hopefully make it possible for anyone to follow along.
 
@@ -60,7 +86,7 @@ A simple way to go from a binary number to its two's complement representation i
 
 So why is it called two's complement? By definition, the sum of an 8-bit number and its two's complement representation is 2<sup>8</sup>.
 
-##### Binary addition (ADC)
+##### Addition (ADC)
 
 Using the two's complement representation, it is possible to easily add up any two numbers.
 
@@ -116,7 +142,7 @@ Adding 127 and 1 leads to a result of -128, which is clearly incorrect. Two numb
 
 This does not mean the overflow flag automatically indicates a result is invalid. The processor itself does not have a notion of signed or unsigned. If the numbers are considered unsigned, such as when adding `0111 1000` (+120) to itself, the operation results in `1111 0000` and leaves the overflow flag set. Whether this is relevant depends on whether the result represents a signed or unsigned number, and the flag is just there to support the cases for which it is.
 
-##### Binary subtraction (SBC)
+##### Subtraction (SBC)
 
 Subtraction works much like addition, except digits are borrowed rather than carried.
 
@@ -142,7 +168,7 @@ Consider the number 99. In binary this is `0110 0011`, but in packed binary code
 
 Not every constellation of bits represents a valid BCD number. Specifically, any nibble representing a number outside of the range 0-9 are not legal binary coded decimal.
 
-##### Binary coded decimal addition (ADC)
+##### Addition (ADC)
 
 So how does BCD addition work?
 
@@ -153,7 +179,7 @@ So how does BCD addition work?
 5. If the result exceeds 9, again take the remainder and set a carry.
 6. Add up the results to obtain the outcome.
 
-###### Example
+**Example**
 
 It is perhaps easier to demonstrate through an example computing 99 + 9. No existing carry is set.
 
@@ -168,7 +194,7 @@ A convenient way to take the remainder and account for the carry is to add 6 to 
 
 For example, imagine the number `1100` (decimal 12). Adding 6 leads to `0001 0010`, representing the decimal number 12.
 
-##### Decimal coded decimal subtraction (SBC)
+##### Subtraction (SBC)
 
 *Binary* subtraction was rewritten as binary addition by inverting the subtrahend using twos' complement notation. A similar conversion can be applied for binary coded decimal subtraction.
 
@@ -184,7 +210,7 @@ So how does BCD subtraction work?
 
 Although there is no way to express negative numbers in BCD (directly), the result of a subtraction will be negative is the subtrahend exceeds the minuend. This is indicated by the carry, which is clear for results below zero and set otherwise.
 
-###### Example
+**Example**
 
 Let's compute 55 - 34.
 
