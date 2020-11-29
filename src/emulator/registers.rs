@@ -11,7 +11,7 @@ pub enum Flag {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct Status {
+pub struct Status {
     pub(crate) flags: u8,
 }
 
@@ -40,7 +40,7 @@ impl Status {
         self.flags |= 0x1 << (flag as u8);
     }
 
-    pub(crate) fn get(&self, flag: Flag) -> bool {
+    pub fn get(&self, flag: Flag) -> bool {
         let v = self.flags >> (flag as u8);
         (v & 0x1) == 1
     }
@@ -81,14 +81,14 @@ impl Status {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Registers {
     pub program_counter: u16,
-    pub(crate) stack_pointer: u8,
-    pub(crate) accumulator: u8,
-    pub(crate) x: u8,
-    pub(crate) y: u8,
-    pub(crate) status: Status,
+    pub stack_pointer: u8,
+    pub accumulator: u8,
+    pub x: u8,
+    pub y: u8,
+    pub status: Status,
 }
 
 impl Registers {

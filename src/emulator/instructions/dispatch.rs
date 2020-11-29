@@ -78,7 +78,7 @@ impl<C: Memory> Emulator<C> {
             INY::IMPLIED => self.iny(),
             JMP::ABSOLUTE => self.jmp(AddressMode::Absolute),
             JMP::INDIRECT => self.jmp(AddressMode::Indirect),
-            JSR::IMPLIED => self.jsr(),
+            JSR::ABSOLUTE => self.jsr(AddressMode::Absolute),
             LDA::IMMEDIATE => self.lda(AddressMode::Immediate),
             LDA::ZEROPAGE => self.lda(AddressMode::ZeroPage),
             LDA::ZEROPAGEX => self.lda(AddressMode::ZeroPageX),

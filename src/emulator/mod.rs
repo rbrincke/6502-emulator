@@ -6,9 +6,18 @@ pub mod instructions;
 pub mod read_write;
 pub mod registers;
 
-pub struct Emulator<M: Memory> {
+/// Address for the least significant byte of the NMI vector.
+pub(crate) const NMI_VECTOR_ADDR: u16 = 0xfffa;
+
+/// Address for the least significant byte of the reset vector.
+pub(crate) const RESET_VECTOR_ADDR: u16 = 0xfffc;
+
+/// Address for the least significant byte of the IRQ and BRK vector.
+pub(crate) const INT_VECTOR_ADDR: u16 = 0xfffe;
+
+pub struct Emulator<C: Memory> {
     pub registers: Registers,
-    pub(crate) memory: M,
+    pub memory: C,
     pub irq: bool,
     pub nmi: bool,
 }
@@ -32,11 +41,11 @@ impl<C: Memory> Emulator<C> {
         self.registers.status.set(Flag::Interrupt);
 
         // Initialize the program counter.
-        self.registers.program_counter = self.read_two(0xFFFC, 0xFFFD);
+        self.registers.program_counter = self.read_two(RESET_VECTOR_ADDR, RESET_VECTOR_ADDR + 1);
     }
 
     pub fn execute_next(&mut self) {
-        // Hardware interrupts.
+        // Hardware interrupts. See readme for details.
         if self.nmi {
             self.nmi()
         } else if self.irq && !self.registers.status.get(Flag::Interrupt) {
@@ -50,13 +59,19 @@ impl<C: Memory> Emulator<C> {
     }
 }
 
+pub(crate) fn bytes_little_endian(value: u16) -> (u8, u8) {
+    let least = value & 0x00FF;
+    let most = (value & 0xFF00) >> 8;
+    (least as u8, most as u8)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::emulator::addressing::AddressMode;
     use crate::emulator::registers::Flag::*;
     use crate::emulator::registers::{Flag, Registers};
     use crate::emulator::Emulator;
-    use crate::memory::basic::DefaultMemory;
+    use crate::memory::default::DefaultMemory;
 
     pub(crate) type Instruction = for<'r> fn(&'r mut Emulator<DefaultMemory>) -> ();
     pub(crate) type AddressInstruction =

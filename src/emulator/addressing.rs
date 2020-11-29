@@ -49,7 +49,6 @@ impl<C: Memory> Emulator<C> {
         self.read(immediate_address) as i8 as u16
     }
 
-    /// Full 16-bit address.
     pub(crate) fn address_absolute(&mut self) -> u16 {
         let least = self.address_immediate();
         let most = self.address_immediate();
@@ -64,10 +63,9 @@ impl<C: Memory> Emulator<C> {
         self.address_absolute() + self.registers.y as u16
     }
 
-    /// Indirection.
     fn address_indirect(&mut self) -> u16 {
         let least_significant = self.address_absolute();
-        // Actually a bug in the original 6502.
+        // Bug compatible with the original 6502.
         self.read_two(
             least_significant,
             (least_significant & 0xFF00) | ((least_significant + 1) % 0x100),

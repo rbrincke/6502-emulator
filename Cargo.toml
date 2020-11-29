@@ -1,11 +1,16 @@
 [package]
-name = "nes"
+name = "emulator"
 version = "0.1.0"
 authors = ["rbrincke <r.h.w.tenbrincke@gmail.com>"]
-edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "emulator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "demo"
+path = "src/demo/mod.rs"
 
 [dependencies]
-maplit = "1.0.2"
-regex = "0.2"
+crossterm = "0.18"
+rand = "0.7.3"

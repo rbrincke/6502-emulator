@@ -13,7 +13,7 @@ impl<C: Memory> Emulator<C> {
         self.registers.status.clear(Flag::Decimal);
     }
 
-    /// Clear interrupt.
+    /// Clear interrupt disable.
     pub(crate) fn cli(&mut self) {
         self.registers.status.clear(Flag::Interrupt);
     }
@@ -33,7 +33,7 @@ impl<C: Memory> Emulator<C> {
         self.registers.status.set(Flag::Decimal);
     }
 
-    /// Set interrupt.
+    /// Set interrupt disable.
     pub(crate) fn sei(&mut self) {
         self.registers.status.set(Flag::Interrupt);
     }

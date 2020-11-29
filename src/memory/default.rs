@@ -1,8 +1,7 @@
 use crate::memory::Memory;
+use emulator::RESET_VECTOR_ADDR;
 
 pub const SIZE: usize = 0xFFFF + 1;
-const PC_RESET_1: usize = 0xFFFC;
-const PC_RESET_2: usize = 0xFFFD;
 
 pub struct DefaultMemory {
     pub memory: [u8; SIZE],
@@ -32,7 +31,7 @@ impl DefaultMemory {
     }
 
     pub fn set_program_counter(&mut self, pc: u16) {
-        self.memory[PC_RESET_1] = (0x00FF & pc) as u8;
-        self.memory[PC_RESET_2] = ((0xFF00 & pc) >> 8) as u8;
+        self.memory[RESET_VECTOR_ADDR as usize] = (0x00FF & pc) as u8;
+        self.memory[(RESET_VECTOR_ADDR + 1) as usize] = ((0xFF00 & pc) >> 8) as u8;
     }
 }

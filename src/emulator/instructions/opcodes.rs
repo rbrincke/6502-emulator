@@ -1,3 +1,5 @@
+use crate::emulator::bytes_little_endian;
+
 pub trait Immediate {
     const IMMEDIATE: u8;
     fn immediate(value: u8) -> Vec<u8> {
@@ -26,24 +28,18 @@ pub trait ZeroPageY {
     }
 }
 
-fn split(value: u16) -> (u8, u8) {
-    let first = (value & 0xFF00) << 8;
-    let second = value & 0x00FF;
-    (first as u8, second as u8)
-}
-
 pub trait Absolute {
     const ABSOLUTE: u8;
     fn absolute(value: u16) -> Vec<u8> {
-        let (first, second) = split(value);
-        vec![Self::ABSOLUTE, first, second]
+        let (least, most) = bytes_little_endian(value);
+        vec![Self::ABSOLUTE, least, most]
     }
 }
 
 pub trait AbsoluteX {
     const ABSOLUTEX: u8;
     fn absolute_x(value: u16) -> Vec<u8> {
-        let (first, second) = split(value);
+        let (first, second) = bytes_little_endian(value);
         vec![Self::ABSOLUTEX, first, second]
     }
 }
@@ -51,7 +47,7 @@ pub trait AbsoluteX {
 pub trait AbsoluteY {
     const ABSOLUTEY: u8;
     fn absolute_y(value: u16) -> Vec<u8> {
-        let (first, second) = split(value);
+        let (first, second) = bytes_little_endian(value);
         vec![Self::ABSOLUTEY, first, second]
     }
 }
@@ -72,8 +68,8 @@ pub trait IndirectIndexed {
 
 pub trait Relative {
     const RELATIVE: u8;
-    fn relative(displacement: u8) -> Vec<u8> {
-        vec![Self::RELATIVE, displacement]
+    fn relative(displacement: i8) -> Vec<u8> {
+        vec![Self::RELATIVE, displacement as u8]
     }
 }
 
@@ -94,7 +90,7 @@ pub trait Implied {
 pub trait Indirect {
     const INDIRECT: u8;
     fn indirect(value: u16) -> Vec<u8> {
-        let (first, second) = split(value);
+        let (first, second) = bytes_little_endian(value);
         vec![Self::INDIRECT, first, second]
     }
 }
@@ -373,8 +369,8 @@ impl Indirect for JMP {
 }
 
 pub struct JSR;
-impl Implied for JSR {
-    const IMPLIED: u8 = 0x20u8;
+impl Absolute for JSR {
+    const ABSOLUTE: u8 = 0x20u8;
 }
 
 pub struct LDA;

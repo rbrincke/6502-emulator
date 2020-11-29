@@ -40,7 +40,7 @@ impl<C: Memory> Emulator<C> {
         self.registers.status.update_zero_negative(result);
     }
 
-    /// Add with carry.
+    /// Add with carry. See readme for details.
     pub(crate) fn adc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
         let value = self.read(addr);
@@ -48,7 +48,7 @@ impl<C: Memory> Emulator<C> {
         self.adc_value(value);
     }
 
-    /// Subtract with carry.
+    /// Subtract with carry. See readme for details.
     pub(crate) fn sbc(&mut self, address_mode: AddressMode) {
         let addr = self.address(address_mode);
         let mut value = self.read(addr) ^ 0xFF;

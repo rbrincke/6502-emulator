@@ -3,4 +3,4 @@ pub trait Memory: Sized {
     fn write(&mut self, address: u16, value: u8);
 }
 
-pub mod basic;
+pub mod default;

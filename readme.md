@@ -1,12 +1,19 @@
 # 6502 Emulator
 
-**Table of contents**
+In this repository you'll find a working emulator of the 6502 micro processing unit (MPU) and a small demo.
+
+You have probably found this page because you are either implementing your own 6502 emulator or are curious about how it works. As always only the source code in `src/emulator` tells the whole story, but I've added [implementation notes](#emulator) below to clarify things that may not be immediately obvious (either to you, or to future me).
+
+Alternatively you may just be curious about how the 6502 behaves, in which case you can go straight [to the demo](#demo). It allows you to run or step through assembly code and observe the 6502's registers and certain memory areas.
+
+So why the 6502? When I bought a Raspberry Pi I came across [RetroPie](https://retropie.org.uk) and became increasingly curious about the inner workings of the Nintendo Entertainment System (NES), which uses a variant of this particular microprocessor. There is no better way to learn than to try to build one.
+
+## Table of contents
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [About](#about)
 - [Emulator](#emulator)
   - [Memory](#memory)
   - [Registers](#registers)
@@ -20,17 +27,14 @@
       - [Subtraction (SBC)](#subtraction-sbc-1)
   - [Jump to and return from subroutine](#jump-to-and-return-from-subroutine)
   - [Interrupts](#interrupts)
+- [Demo](#demo)
+  - [Assembly](#assembly)
+    - [Installing the VASM Assembler](#installing-the-vasm-assembler)
+  - [Usage](#usage)
+  - [The demo machine](#the-demo-machine)
 - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-## About
-
-In this repository you'll find a complete and working emulator of the 6502 micro processing unit (MPU).
-
-But why, you might ask? Mostly because I was curious about the inner workings of the Apple II and the Nintendo Entertainment System (NES), both of which use variants of this particular microprocessor, and as an excuse to try out the Rust programming language.
-
-I am not particularly knowledgeable about the 6502 (or Rust for that matter).
 
 ## Emulator
 
@@ -40,13 +44,21 @@ Here I have added some general implementation notes. Together with the code, com
 
 The 6502 is an 8-bit microprocessor with a 16-bit address bus. With each slot 8-bit wide and 2<sup>16</sup> such slots available, it therefore has a total of 64 kilobytes of memory.
 
-In this emulator all of this memory is read/write accessible, but some of it has innate meaning to the MPU itself.
+Depending on the hardware, all of this memory is potentially read/write accessible, though some of it should be avoided as it has innate meaning to the MPU itself.
 
-The first 256 bytes (0x0000 - 0x00FF) is accessed using zero page addressing, referred to as such because it represents the 0th page of memory as indicated by the leading 0x00 for the range.
+| Address | Purpose |
+|---------|---------|
+| 0x0000..0x00ff  | Zero page |
+| 0x0100..0x01ff  | Stack |
+| 0xfffa..0xfffb  | NMI vector |
+| 0xfffc..0xfffd  | Reset vector |
+| 0xfffe..0xffff  | BRK and IRQ vector |
 
-The first page (0x0100 - 0x01FF) is the hardwired stack address space.
+The first 256 bytes (0x0000 - 0x00ff) is accessed using zero page addressing, referred to as such because it represents the 0th page of memory as indicated by the leading 0x00 for the range.
 
-Addresses 0xFFFA through 0xFFFF are hardwired to initialize the program counter after an MPU reset or interrupt.
+The first page (0x0100 - 0x01ff) is the hardwired stack address space.
+
+Addresses 0xfffa through 0xffff are hardwired to initialize the program counter after an MPU reset or interrupt.
 
 ### Registers
 
@@ -236,7 +248,7 @@ All interrupts trigger roughly the same sequence of events: set the `Interrupt (
 
 So how are the interrupts different?
 
-BRK represents a software interrupt, and is actually a 2-byte instruction. The program counter that is pushed on the stack skips the 2nd byte, unlike for the hardware interrupts. (I often read this comes in handy when using BRK for debugging purposes, where the 2nd byte offers a convenient place to store debug information).
+BRK represents a software interrupt, and is actually a 2-byte instruction. The program counter that is pushed on the stack skips the 2nd byte, unlike for the hardware interrupts (I often read this comes in handy when using BRK for debugging purposes, where the 2nd byte offers a convenient place to store debug information).
 
 For BRK, the `Break` flag is set, which is useful to distinguish between software and hardware interrupts.
 
@@ -247,6 +259,98 @@ NMI is a non-maskable interrupt, unaffected by the `Interrupt` flag. It is edge-
 Both hardware interrupts are represented as externally accessible booleans (`irq` and `nmi`) that are polled during each instruction cycle.
 
 After an interrupt, the RTI instruction resumes execution of the program. Since the correct program counter is pushed onto the stack, no correction as was required for `JSR` and `RTS` is necessary.
+
+## Demo
+
+An emulator is really no fun unless you can actually demonstrate that it does something meaningful (in the widest sense of the word).
+
+I opted for a setup that does something mildly interesting while showing what is going on inside the emulator itself. This can either be run directly, though it's probably more fun to fiddle with the code yourself (as I have done many times).
+
+![UI](https://gist.githubusercontent.com/rbrincke/68f94124c28123d813b849c691d689bc/raw/6548ec1b32feb35798942c00a6980573883dc4af/6502.gif)
+
+*A look inside the machine*.
+
+### Assembly
+
+Writing machine code is tedious and prone to error. What we need to really get the most out of this is a decent assembler for the 6502.
+
+The [VASM assembler](http://sun.hasenbraten.de/vasm/) seems to tick all the boxes: it supports the 6502 family, supports the `oldstyle` syntax suitable for this 8-bit MPU, and can output binaries.
+
+#### Installing the VASM Assembler
+
+If you are on an x86-64 machine, the quickest way to get started is by downloading the binaries from [here](http://www.compilers.de/vasm.html). This is not the latest version, but it'll work just fine.
+
+To install the latest version of the VASM assembler, download its sources and compile them as follows.
+
+```shell script
+curl -OL http://sun.hasenbraten.de/vasm/daily/vasm.tar.gz
+tar -xzf vasm.tar.gz
+make -C vasm CPU=6502 SYNTAX=oldstyle
+```
+
+Once it has compiled, the file of interest is `vasm6502_oldstyle`. For this project that file is expected to reside in the `dependencies` directory, so copy it there.
+
+```shell script
+mkdir -p dependencies && cp vasm/vasm6502_oldstyle dependencies
+```
+
+Everything else can be safely deleted.
+
+```shell script
+rm vast.tar.gz
+rm -r vasm
+```
+
+Note that it is possible to manually send files to the assembler as well.
+
+```shell script
+./dependencies/vasm6502_oldstyle code.asm -dotdir -Fbin -o ./code.bin
+```
+
+Writing assembly code is tricky, and it's a fair bet that things will not always work straight out of the gate. Fortunately `.asm` files can be sent to the assembler as part of the build so it is quick to iterate.
+
+Cargo's supports this by means of the [build.rs](build.rs) file. It ensures the `.asm` file is sent to the assembler as part of the build whenever it changes and that the assembled binary is written to the target directory.
+
+A macro of the form `asm!("name")` pulls the assembled binaries into the Rust code base.
+
+### Usage
+
+Code in this project relies on [Rust and Cargo](https://www.rust-lang.org/tools/install). Make sure it is installed, then open a terminal window and execute
+
+```shell
+cargo run
+```
+
+The demo program contains a matrix of 8 bits that are seeded using random numbers. It also shows the contents of the 6502's registers.
+
+The demo starts in step mode and waits for a key press. Press any key to step to the next instruction. (Note that later in the program there is an `idle` loop that jumps to itself, making it look like nothing is moving.)
+
+Press `m` to toggle to run mode (you can always press `m` again to switch back to step mode) such that it no longer waits for key presses. Use the keys `a`, `s`, `d` and `w` to shift the bits in the matrix left, right, up or down. Left and right shifts cause the carry bit to shift into the next row, while up and down simply translate the rows.
+
+Use `r` to regenerate the random numbers. Note that you can toggle the mode using `m` at any point, or press `q` to quit.
+
+### The demo machine
+
+The demo machine is implemented as a simple application. Inputs and outputs go via a terminal window with the help of `crossterm`.
+
+For any interaction with the outside world the machine assumes the following mapped memory areas.
+
+| Address | Purpose |
+|---------|---------|
+| 0xddd0..0xddd8  | 8-bit display matrix |
+| 0xeee0  | Random number generator |
+| 0xfff0  | Key press ASCII value |
+| 0xfff1  | Key IRQ (1 = unserviced, 0 = serviced) |
+
+Eight addresses starting at `0xddd0` contain the display matrix and are directly mapped to the terminal window output approximately every 50ms. They appear as binary numbers and can be thought of as individual pixels forming a sprite. This was inspired by [CHIP-8](https://en.wikipedia.org/wiki/CHIP-8), which does something highly similar.
+
+The address `0xeee0` is a source for random numbers. A new random number is available whenever it is read.
+
+Most interesting are `0xfff0` and `0xfff1` that support the [interrupt](#interrupts) for key presses. If one of the keys `a`, `s`, `d`, `w` or `r` is pressed, its ASCII value is written to `0xfff0` and `IRQ` is held. This in turn triggers the 6502's interrupt service request, which checks which key was pressed and acts accordingly. Address `0xfff1` is then set to 0 to indicate the MPU has serviced the interrupt, which in turn means the `IRQ` is released.
+
+In step mode, holding down a valid input key causes the stack pointer to drift downwards. This is because the interrupt handler enables interrupts using `cli` at the end, and this is done before the `rti` instruction.
+
+The assembly code can be found in `src/demo/demo.asm`.
 
 ## References
 
