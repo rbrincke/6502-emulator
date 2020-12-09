@@ -7,8 +7,8 @@ impl<C: Memory> Emulator<C> {
     fn branch(&mut self, flag: Flag, branch_if: bool) {
         let displacement = self.address(AddressMode::Relative);
         if self.registers.status.get(flag) == branch_if {
-            self.registers.program_counter =
-                self.registers.program_counter.wrapping_add(displacement)
+            let next = self.registers.program_counter.wrapping_add(displacement);
+            self.registers.program_counter = next;
         }
     }
 

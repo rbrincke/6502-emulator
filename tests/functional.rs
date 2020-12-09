@@ -1,11 +1,11 @@
-extern crate nes;
+extern crate emulator;
 
-use nes::emulator::Emulator;
-use nes::memory::basic::DefaultMemory;
+use emulator::emulator::Emulator;
+use emulator::memory::default::DefaultMemory;
 
 #[test]
-fn it() {
-    let program = include_bytes!("it.bin").to_vec();
+fn functional() {
+    let program = include_bytes!("functional.bin").to_vec();
 
     let mut memory = DefaultMemory::empty();
     memory.load(program, 0);

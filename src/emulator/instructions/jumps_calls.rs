@@ -9,9 +9,10 @@ impl<C: Memory> Emulator<C> {
         self.registers.program_counter = address;
     }
 
-    pub(crate) fn jsr(&mut self) {
+    pub(crate) fn jsr(&mut self, address_mode: AddressMode) {
+        // See readme for explanation.
         self.push_pc(self.registers.program_counter + 1);
-        self.registers.program_counter = self.address_absolute();
+        self.jmp(address_mode);
     }
 
     pub(crate) fn rts(&mut self) {
@@ -44,7 +45,7 @@ mod test {
         c.memory.memory[0x600] = 0xcd;
         c.memory.memory[0x601] = 0xab;
 
-        c.jsr();
+        c.jsr(AddressMode::Absolute);
         assert_eq!(0x06, c.memory.memory[0x1FF]);
         assert_eq!(0x01, c.memory.memory[0x1FE]); // Adds 1.
 
@@ -70,7 +71,7 @@ mod test {
         let mut c = setup(vec![]);
 
         c.registers.program_counter = 0x601;
-        c.jsr();
+        c.jsr(AddressMode::Absolute);
         c.rts();
 
         // Lands after the 2-byte address.

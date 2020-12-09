@@ -51,7 +51,7 @@ mod test {
     use crate::emulator::registers::Flag::{Negative, Zero};
     use crate::emulator::tests::{setup, TestAssertions};
     use crate::emulator::Emulator;
-    use crate::memory::basic::DefaultMemory;
+    use crate::memory::default::DefaultMemory;
 
     fn test_x<F: for<'r> Fn(&'r mut Emulator<DefaultMemory>)>(
         initial: u8,
